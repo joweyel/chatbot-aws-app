@@ -1,0 +1,14 @@
+[tool.pylint.messages_control]
+
+disable = [
+    "missing-function-docstring",
+    "missing-final-newline",
+    "missing-module-docstring",
+    "invalid-name",
+    "redefined-outer-name"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+skip-string-normalization = true

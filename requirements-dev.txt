@@ -1,0 +1,7 @@
+streamlit==1.39.0
+numpy==1.26.4
+opencv-python-headless==4.10.0.84
+opencv-contrib-python-headless==4.10.0.84
+black==24.10.0
+pytest==8.3.3
+pylint==3.3.1

@@ -1,4 +1,4 @@
-streamlit
-numpy
-opencv-python-headless
-opencv-contrib-python-headless
+streamlit==1.39.0
+numpy==1.26.4
+opencv-python-headless==4.10.0.84
+opencv-contrib-python-headless==4.10.0.84
