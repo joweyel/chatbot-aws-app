@@ -1,0 +1,64 @@
+---
+- hosts: jenkins-server
+  become: true
+  tasks:
+  - name: Add Jenkins key
+    apt_key: 
+      url:  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+      state: present
+
+  - name: Add Jenkins repository
+    apt_repository: 
+      repo: 'deb https://pkg.jenkins.io/debian-stable binary/'
+      state: present
+
+  - name: Install Java 17
+    apt:
+      name: openjdk-17-jre
+      state: present
+  
+  - name: Install Jenkins 
+    apt: 
+      name: jenkins 
+      state: present
+
+  - name: Start Jenkins service
+    service: 
+      name: jenkins 
+      state: started 
+
+  - name: Enable Jenkins to start at boot time 
+    service: 
+      name: jenkins 
+      enabled: yes 
+
+  - name: Create startup script to update Jenkins URL
+    copy:
+     dest: /usr/local/bin/update_jenkins_url.sh
+     content: |
+        #!/bin/bash
+        PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
+        sudo sed -i "s|<jenkinsUrl>.*</jenkinsUrl>|<jenkinsUrl>http://$PUBLIC_IP:8080</jenkinsUrl>|" /var/lib/jenkins/jenkins.model.JenkinsLocationConfiguration.xml
+        sudo systemctl restart jenkins
+  
+  - name: Make the startup script executable
+    file:
+      path: /usr/local/bin/update_jenkins_url.sh
+      mode: 0755
+  
+  - name: Create service to update ip at startup
+    copy:
+      dest: /etc/systemd/system/update_jenkins_url.service
+      content: |
+        [Unit]
+        Description=Update Jenkins URL
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/update_jenkins_url.sh
+
+        [Install]
+        WantedBy=multi-user.target
+
+  - name: Enable the systemd service
+    command: systemctl enable update_jenkins_url.service

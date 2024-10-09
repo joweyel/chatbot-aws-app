@@ -1,0 +1,52 @@
+---
+- hosts: build-server
+  become: true
+  tasks:
+  - name: Update Ubuntu repo and cache
+    apt:
+      update_cache: yes
+      force_apt_get: yes
+      cache_valid_time: 3600
+
+  - name: Add Deadsnakes PPA for Python 3.9
+    apt_repository:
+      repo: ppa:deadsnakes/ppa
+      state: present
+
+  - name: Install Python 3.9 related programs
+    apt:
+      name:
+        - python3.9
+        - python3.9-distutils
+        - python3-pip
+        - python3.9-venv
+      state: present
+
+  - name: Install Docker
+    apt:
+      name: docker.io
+      state: present
+
+  - name: Start Docker service
+    service:
+      name: docker
+      state: started
+
+  - name: Add user to Docker group
+    user:
+      name: "{{ ansible_user }}"
+      groups: docker
+      append: yes
+
+  - name: Ensure Docker starts at boot time
+    service:
+      name: docker
+      enabled: yes
+
+  - name: Verify Docker group membership
+    command: groups "{{ ansible_user }}"
+    register: group_result
+
+  - name: Show group membership
+    debug:
+      var: group_result.stdout
