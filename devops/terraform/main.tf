@@ -120,6 +120,7 @@ resource "aws_instance" "ansible" {
 resource "aws_security_group" "app-sg" {
   name        = "app-sg"
   description = "Security Group of accessing resources"
+  vpc_id      = aws_vpc.app-vpc.id
 
   ingress {
     description = "SSH access"
