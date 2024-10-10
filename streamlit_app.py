@@ -34,7 +34,6 @@ def load_landmarks_model():
 
 def detect_faces(net, img, threshold):
 
-    print(img.shape)
     # Part 1: get face detections
     blob = cv2.dnn.blobFromImage(
         img,
@@ -48,26 +47,27 @@ def detect_faces(net, img, threshold):
     net.setInput(blob)
     detections = net.forward()
 
+    def bounds_check(p1, p2, h, w):
+        h_check = 0 <= p1[1] < h and 0 <= p2[1] <= h
+        w_check = 0 <= p1[0] < w and 0 <= p2[0] <= w
+        return w_check and h_check
+
+    def validity_check(det_h, det_w):
+        return det_h > 0 and det_w > 0
+
     # Part 2: get the bboxes of all detectons
     faces = []
     H, W = img.shape[0], img.shape[1]
     for det in detections[0][0]:
         if det[2] >= threshold:
-            x1 = det[3] * W
-            y1 = det[4] * H
-            x2 = det[5] * W
-            y2 = det[6] * H
+            p1 = [det[3] * W, det[4] * H]  # [x1, y1]
+            p2 = [det[5] * W, det[6] * H]  # [x2, y2]
+            det_w = p2[0] - p1[0]
+            det_h = p2[1] - p1[1]
+            if bounds_check(p1, p2, H, W) and \
+                validity_check(det_h, det_w):
+                faces.append((p1[0], p1[1], det_w, det_h))
 
-            det_w = x2 - x1
-            det_h = y2 - y1
-            if det_w > 0 and \
-               det_h > 0 and \
-               0 <= x1 < W and \
-               0 <= y1 < H and \
-               0 <= x2 <= W and \
-               0 <= y2 <= H:
-                faces.append((x1, y1, det_w, det_h))
-    
     return np.array(faces).astype(int)
 
 st.title("Facial landmark detection")
