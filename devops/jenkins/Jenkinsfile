@@ -23,7 +23,7 @@ pipeline {
                 echo "----------------- START PYTHON SETUP -----------------"
                 sh """
                     python3.9 -m venv ${WORKSPACE}/${VENV_NAME}
-                    source ${WORKSPACE}/${VENV_NAME}/bin/activate
+                    . ${WORKSPACE}/${VENV_NAME}/bin/activate
                     pip install -r requirements-dev.txt
                 """
                 echo "------------------ END PYTHON SETUP ------------------"
@@ -33,7 +33,7 @@ pipeline {
             steps {
                 echo "----------------- START Testing -----------------"
                 sh """
-                    source $WORKSPACE/${VENV_NAME}/bin/activate
+                    . $WORKSPACE/${VENV_NAME}/bin/activate
                     pytest tests/ -v
                 """
                 echo "------------------ END Testing ------------------"
@@ -44,7 +44,7 @@ pipeline {
             steps {
                 echo "----------------- START LINTING -----------------"
                 sh """
-                    source $WORKSPACE/${VENV_NAME}/bin/activate
+                    . $WORKSPACE/${VENV_NAME}/bin/activate
                     pylint streamlit_app.py
                 """
                 echo "------------------ END LINTING ------------------"
