@@ -22,6 +22,8 @@ pipeline {
             {
                 echo "----------------- START PYTHON SETUP -----------------"
                 sh """
+                    chmod +x download_models.sh
+                    ./download_models.sh
                     python3.9 -m venv ${WORKSPACE}/${VENV_NAME}
                     . ${WORKSPACE}/${VENV_NAME}/bin/activate
                     pip install -r requirements-dev.txt
