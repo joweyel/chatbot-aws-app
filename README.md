@@ -5,9 +5,17 @@ This is a simple app for facial landmark detection using lightweight pre-trained
 ## Running the app locally
 Create and activate a virtual environment
 ```bash
-python3 -m venv venv
+python3.9 -m venv venv
 source venv/bin/activate
 ```
+
+Install dependencies
+```bash
+pip install -r requirements.txt
+# (Optional): dependencies for development
+pip install -r requirements-dev.txt
+```
+
 Download the models
 ```bash
 mkdir -p models

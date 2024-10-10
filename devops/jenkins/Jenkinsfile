@@ -16,23 +16,39 @@ pipeline {
 
     stages
     {
-        stage("python test")
+        stage("Setup Python Environment")
         {
-            steps 
+            steps
             {
-                sh 'python3 --version'
+                echo "----------------- START PYTHON SETUP -----------------"
+                sh """
+                    python3.9 -m venv ${WORKSPACE}/${VENV_NAME}
+                    source ${WORKSPACE}/${VENV_NAME}/bin/activate
+                    pip install -r requirements-dev.txt
+                """
+                echo "------------------ END PYTHON SETUP ------------------"
             }
         }
-        // stage("Setup Python Environment")
-        // {
-        //     steps
-        //     {
-        //         sh """
-        //             python3.9 -m venv ${VENV_NAME}
-        //             source ${VENV_NAME}/bin/activate
-        //             pip install -r requirements-dev.txt
-        //         """
-        //     }
-        // }
+        stage("Run Tests") {
+            steps {
+                echo "----------------- START Testing -----------------"
+                sh """
+                    source $WORKSPACE/${VENV_NAME}/bin/activate
+                    pytest tests/ -v
+                """
+                echo "------------------ END Testing ------------------"
+            }
+        }
+
+        stage("Linting the code") {
+            steps {
+                echo "----------------- START LINTING -----------------"
+                sh """
+                    source $WORKSPACE/${VENV_NAME}/bin/activate
+                    pylint streamlit_app.py
+                """
+                echo "------------------ END LINTING ------------------"
+            }
+        }
     }
 }

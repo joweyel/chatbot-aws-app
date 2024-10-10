@@ -133,3 +133,10 @@ Set the parameters as follows:
   - **ID**: Github_Cred
 
 ### Add Webhook to Github
+- Go to settings of your forked `face-landmark-app` repo here: https://github.com/your_user/face-landmark-app/settings/hooks/
+  - **Payload URL**: `http://JENKINS_PUBLIC_IP:8080/github-webhook/`
+  - **Content type**: `application/json`
+  - **SSL verification**:
+    - Enable SSL verification
+  - **Trigger Webhook at**: 
+    - Just the push event
