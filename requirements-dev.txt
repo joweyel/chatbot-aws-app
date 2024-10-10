@@ -5,3 +5,4 @@ opencv-contrib-python-headless==4.10.0.84
 black==24.10.0
 pytest==8.3.3
 pylint==3.3.1
+bandit==1.7.10

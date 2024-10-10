@@ -50,3 +50,34 @@
   - name: Show group membership
     debug:
       var: group_result.stdout
+
+  # Install Java
+  - name: Install Java 11
+    apt:
+      name: openjdk-11-jdk
+      state: present
+
+  - name: Set JAVA_HOME in .bashrc
+    lineinfile:
+      path: '/home/{{ ansible_user }}/.bashrc'
+      line: 'export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64'
+      state: present
+
+  - name: Add Java to PATH in .bashrc
+    lineinfile:
+      path: '/home/{{ ansible_user }}/.bashrc'
+      line: 'export PATH="$PATH:/usr/lib/jvm/java-11-openjdk-amd64"'
+      state: present
+
+  - name: Source .bashrc to reload environment variables
+    shell: 'source /home/{{ ansible_user }}/.bashrc'
+    args:
+      executable: /bin/bash
+
+  - name: Verify Java installation
+    command: java -version
+    register: java_version_result
+
+  - name: Show Java version
+    debug:
+      var: java_version_result.stdout

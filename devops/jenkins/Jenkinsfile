@@ -1,2 +1,38 @@
 pipeline {
+    agent
+    {
+        node
+        {
+            label 'python'
+        }
+    }
+    environment
+    {
+        VENV_NAME = "build-venv"
+        // AWS_ACCESS_KEY_ID = credentials('aws_creds_tf_access_key')
+        // AWS_SECRET_ACCESS_KEY = credentials('aws_creds_tf_secret_key')
+        // AWS_REGION = credentials("aws_region")
+    }
+
+    stages
+    {
+        stage("python test")
+        {
+            steps 
+            {
+                sh 'python --version'
+            }
+        }
+        // stage("Setup Python Environment")
+        // {
+        //     steps
+        //     {
+        //         sh """
+        //             python3.9 -m venv ${VENV_NAME}
+        //             source ${VENV_NAME}/bin/activate
+        //             pip install -r requirements-dev.txt
+        //         """
+        //     }
+        // }
+    }
 }
