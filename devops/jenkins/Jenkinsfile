@@ -34,7 +34,7 @@ pipeline {
                 echo "----------------- START Testing -----------------"
                 sh """
                     . $WORKSPACE/${VENV_NAME}/bin/activate
-                    pytest --rootdir=$WORKSPACE tests/ -v
+                    pytest tests/ -v
                 """
                 echo "------------------ END Testing ------------------"
             }
