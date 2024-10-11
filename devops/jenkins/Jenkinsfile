@@ -63,7 +63,7 @@ pipeline {
                 script {
                     echo "----------------- START BUILDING DOCKER IMAGE -----------------"
                     def image_and_version = "${IMAGE_NAME}:${version}"
-                    sh "docker build -t $IMAGE_AND_VERSION ."
+                    sh "docker build -t ${image_and_version} ."
                     echo "------------------ END BUILDING DOCKER IMAGE ------------------"
                 }
             }
