@@ -13,7 +13,8 @@ pipeline {
         AWS_PROFILE = credentials("aws_profile")
         ECR_REGISTRY = credentials("ecr_registry_url")
         ECR_REPOSITORY = "cv-app-ecr-repo"
-        IMAGE_NAME = "${ECR_REGISTRY}/${ECR_REPOSITORY}/face-landmark-app"
+        ECR_REPO_NAME = "${ECR_REGISTRY}/${ECR_REPOSITORY}"
+        IMAGE_NAME = "${ECR_REPO_NAME}/face-landmark-app"
         VERSION = "0.1"
         IMAGE_AND_VERSION = "$IMAGE_NAME:$VERSION"
     }
@@ -81,7 +82,8 @@ pipeline {
             steps {
                 script {
                     echo '<--------------- DOCKER PUBLISH START --------------->'
-                    sh "docker push $IMAGE_AND_VERSION"
+                    sh "docker tag $IMAGE_NAME:$VERSION $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION"
+                    sh "docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION"
                     echo '<---------------- DOCKER PUBLISH END ---------------->'
                 }
             }
