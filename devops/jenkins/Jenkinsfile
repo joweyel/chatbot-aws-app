@@ -1,3 +1,4 @@
+
 pipeline {
     agent
     {
@@ -9,9 +10,12 @@ pipeline {
     environment
     {
         VENV_NAME = "build-venv"
-        // AWS_ACCESS_KEY_ID = credentials('aws_creds_tf_access_key')
-        // AWS_SECRET_ACCESS_KEY = credentials('aws_creds_tf_secret_key')
-        // AWS_REGION = credentials("aws_region")
+        AWS_REGION = credentials("aws_region")
+        AWS_PROFILE = credentials("aws_profile")
+        ECR_REGISTRY = credentials("ecr_registry_url")
+        ECR_REPOSITORY = "cv-app-ecr-repo"
+        IMAGE_NAME = "${ECR_REGISTRY}/${ECR_REPOSITORY}/face-landmark-app"
+        VERSION = "0.0"
     }
 
     stages
@@ -50,6 +54,49 @@ pipeline {
                     pylint streamlit_app.py
                 """
                 echo "------------------ END LINTING ------------------"
+            }
+        }
+        
+        stage("Building Docker Image") {
+            steps {
+                script {
+                    echo "----------------- START BUILDING DOCKER IMAGE -----------------"
+                    app = docker.build("${IMAGE_NAME}:${VERSION}")
+                    echo "------------------ END BUILDING DOCKER IMAGE ------------------"
+                }
+            }
+        }
+
+        stage("Login to ECR") {
+            steps {
+                echo "------------------- LOGIN TO ECR ---------------------"
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                """
+                echo "------------------ END LOGIN TO ECR ------------------"
+            }
+        }
+
+        stage("Publish Docker Image to ECR") {
+            steps {
+                script {
+                    echo '<--------------- DOCKER PUBLISH START --------------->'
+                    app.push()
+                    echo '<---------------- DOCKER PUBLISH END ---------------->'
+                }
+            }
+        }
+
+        stage('Get EKS cluster credentials') 
+        {
+            steps 
+            {
+                script 
+                {
+                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'cv_app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        sh 'aws eks update-kubeconfig --region $AWS_REGION --name jw-eks-01'
+                    }
+                }
             }
         }
     }

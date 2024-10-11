@@ -46,6 +46,9 @@ resource "aws_instance" "build-server" {
   vpc_security_group_ids = [aws_security_group.app-sg.id]
   subnet_id              = aws_subnet.app-public-subnet-01.id
 
+  iam_instance_profile = module.ecr.ecr_instance_profile_name
+  
+
   tags = {
     Name = "build-server"
   }
@@ -79,33 +82,33 @@ resource "aws_instance" "ansible" {
   # Copy the SSH key to the home directory first
   provisioner "file" {
     source      = "app_key.pem"
-    destination = "/home/ubuntu/app_key.pem"  # Copy to home directory
+    destination = "/home/ubuntu/app_key.pem" # Copy to home directory
   }
 
   # Copy the dynamically generated Ansible hosts file
   provisioner "file" {
     content     = data.template_file.hosts_file.rendered
-    destination = "/home/ubuntu/hosts"  # Copy to home directory
+    destination = "/home/ubuntu/hosts" # Copy to home directory
   }
 
   # Copy Ansible playbooks
   provisioner "file" {
     source      = "../ansible/jenkins-server-setup.yaml"
-    destination = "/home/ubuntu/jenkins-server-setup.yaml"  # Copy to home directory
+    destination = "/home/ubuntu/jenkins-server-setup.yaml" # Copy to home directory
   }
   provisioner "file" {
     source      = "../ansible/build-server-setup.yaml"
-    destination = "/home/ubuntu/build-server-setup.yaml"  # Copy to home directory
+    destination = "/home/ubuntu/build-server-setup.yaml" # Copy to home directory
   }
 
   # Move files to /opt and set permissions
   provisioner "remote-exec" {
     inline = [
-      "sudo mv /home/ubuntu/app_key.pem /opt/app_key.pem",                              # Move to /opt with sudo
-      "sudo chmod 400 /opt/app_key.pem",                                                # Set permissions for the key
-      "sudo mv /home/ubuntu/hosts /opt/hosts",                                          # Move hosts file
-      "sudo mv /home/ubuntu/jenkins-server-setup.yaml /opt/jenkins-server-setup.yaml",  # Move playbook
-      "sudo mv /home/ubuntu/build-server-setup.yaml /opt/build-server-setup.yaml",      # Move playbook
+      "sudo mv /home/ubuntu/app_key.pem /opt/app_key.pem",                             # Move to /opt with sudo
+      "sudo chmod 400 /opt/app_key.pem",                                               # Set permissions for the key
+      "sudo mv /home/ubuntu/hosts /opt/hosts",                                         # Move hosts file
+      "sudo mv /home/ubuntu/jenkins-server-setup.yaml /opt/jenkins-server-setup.yaml", # Move playbook
+      "sudo mv /home/ubuntu/build-server-setup.yaml /opt/build-server-setup.yaml",     # Move playbook
       "sudo apt update",
       "sudo apt install -y software-properties-common",
       "sudo add-apt-repository -y --update ppa:ansible/ansible",
@@ -211,6 +214,11 @@ resource "aws_route_table_association" "app-rta-public-subnet-01" {
 resource "aws_route_table_association" "app-rta-public-subnet-02" {
   subnet_id      = aws_subnet.app-public-subnet-02.id
   route_table_id = aws_route_table.app-public-rt.id
+}
+
+module "ecr" {
+  source        = "./ecr"
+  ecr_repo_name = var.ecr_repo_name
 }
 
 # module "sgs" {

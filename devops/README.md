@@ -38,6 +38,8 @@ To create the required cloud infrastructure terraform is used. This creates a vp
 - ansible
 - jenkins-server
 - build-server
+- ECR
+- EKS
 
 The application of Ansible playbooks is already automated within terraform and you can therefore directly use the jenkins-server when the provisioning is done. The main terraform file is [main.tf](./terraform/main.tf)
 
@@ -66,7 +68,8 @@ Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Plugins]` -> `[Available plugins]
 <!-- - Artifactory -->
 <!-- - SonarQube Scanner -->
 - AWS Credentials
-- GitHub Integration Plugin 
+- GitHub Integration Plugin
+- Docker Pipeline
 
 ### Set up build node
 
@@ -141,4 +144,42 @@ Set the parameters as follows:
   - **Trigger Webhook at**: 
     - Just the push event
 
-The pipeline should now be able to 
+The pipeline should now be able to be triggered with every `git push` command.
+
+### Connecting Jenkinsfile with AWS resources
+
+- <u><b>Setting AWS-Credentials</b></u>
+  - Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Credentials]` -> `[System]` -> `[Global credentials (unrestricted)]` -> `[+ Add Credentials]` and choose the following settings
+  - **Kind**: `AWS Credentials`
+    - **Scope**: `Global`
+    - **ID**: `cv_app_user-aws-creds`
+    - **Description**: `cv_app_user-aws-creds`
+    - **Access Key ID**: `<AWS_ACCESS_KEY_ID>`
+    - **Secret Access Key**: `<AWS_SECRET_ACCESS_KEY>`
+  
+  The AWS credentials can now be set by using the following code inside steps of a stage:
+  ```groovy
+    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'cv_app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+        ...
+    }
+  ```
+
+- <u><b>Setting AWS region / profile & ECR Registry URL as credentials</b></u>
+  - Setting them as credentials avoids putting sensitive information in the [Jenkinsfile](./jenkins/Jenkinsfile)
+  - Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Credentials]` -> `[System]` -> `[Global credentials (unrestricted)]` -> `[+ Add Credentials]` and choose the following settings
+  - For `AWS_REGION`:
+    - **Kind**: `Secret test`
+      - **Scope**: `General`
+      - **Secret**: `us-east-1`  (where everything is done)
+      - **ID**: `aws_region`
+  - For `AWS_PROFILE`:
+    - **Kind**: `Secret test`
+      - **Scope**: `General`
+      - **Secret**: `cv_app_user`  (where everything is done)
+      - **ID**: `aws_profile`
+  - For `ECR_REGISTRY` (find the URI of *`cv-app-ecr-repo`* in the ECR section of AWS)
+    - **Kind**: `Secret test`
+      - **Scope**: `General`
+      - **Secret**: `<user-id>.dkr.ecr.<aws-region>.amazonaws.com/`  (example)
+      - **ID**: `ecr_registry_url`
+  

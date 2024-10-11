@@ -81,3 +81,41 @@
   - name: Show Java version
     debug:
       var: java_version_result.stdout
+
+  - name: Install unzip (reqired for awscli2 install)
+    apt:
+      name: unzip
+      state: present
+
+  - name: Download AWS CLI v2
+    get_url:
+      url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+      dest: "/home/{{ ansible_user }}/awscliv2.zip"
+
+  - name: Unzip AWS CLI v2
+    unarchive:
+      src: "/home/{{ ansible_user }}/awscliv2.zip"
+      dest: "/home/{{ ansible_user }}/"
+      remote_src: yes
+
+  - name: Install AWS CLI v2
+    command: "/home/{{ ansible_user }}/aws/install --update"
+
+  - name: Verify awscli2 installation
+    command: aws --version
+    register: awscli_version_result
+
+  - name: Show awscli2 version
+    debug:
+      var: awscli_version_result.stdout
+
+  - name: Download kubectl
+    get_url:
+      url: "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
+      dest: "/home/{{ ansible_user }}/kubectl"
+  
+  - name: Make kubectl executable
+    command: chmod +x "/home/{{ ansible_user }}/kubectl"
+
+  - name: Move kubectl to /usr/local/bin
+    command: mv "/home/{{ ansible_user }}/kubectl" /usr/local/bin/kubectl
