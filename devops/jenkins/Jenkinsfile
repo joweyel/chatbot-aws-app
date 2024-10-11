@@ -63,6 +63,7 @@ pipeline {
                 script {
                     echo "----------------- START BUILDING DOCKER IMAGE -----------------"
                     def image_and_version = "${IMAGE_NAME}:${version}"
+                    echo "image_and_version: ${image_and_version}"
                     sh "docker build -t ${image_and_version} ."
                     echo "------------------ END BUILDING DOCKER IMAGE ------------------"
                 }
@@ -84,6 +85,7 @@ pipeline {
                 script {
                     echo '<--------------- DOCKER PUBLISH START --------------->'
                     def image_and_version = "${IMAGE_NAME}:${version}"
+                    echo "image_and_version: ${image_and_version}"
                     sh "docker push ${image_and_version}"
                     echo '<---------------- DOCKER PUBLISH END ---------------->'
                 }
