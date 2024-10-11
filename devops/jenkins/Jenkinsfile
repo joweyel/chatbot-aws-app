@@ -62,7 +62,7 @@ pipeline {
             steps {
                 script {
                     echo "----------------- START BUILDING DOCKER IMAGE -----------------"
-                    def image_and_version = "$IMAGE_NAME:${version}"
+                    def image_and_version = "${IMAGE_NAME}:${version}"
                     sh "docker build -t $IMAGE_AND_VERSION ."
                     echo "------------------ END BUILDING DOCKER IMAGE ------------------"
                 }
@@ -73,7 +73,7 @@ pipeline {
             steps {
                 echo "------------------- LOGIN TO ECR ---------------------"
                 sh """
-                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
                 """
                 echo "------------------ END LOGIN TO ECR ------------------"
             }
@@ -83,7 +83,7 @@ pipeline {
             steps {
                 script {
                     echo '<--------------- DOCKER PUBLISH START --------------->'
-                    def image_and_version = "$IMAGE_NAME:${version}"
+                    def image_and_version = "${IMAGE_NAME}:${version}"
                     sh "docker push ${image_and_version}"
                     echo '<---------------- DOCKER PUBLISH END ---------------->'
                 }
