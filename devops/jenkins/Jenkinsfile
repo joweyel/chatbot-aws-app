@@ -61,7 +61,8 @@ pipeline {
             steps {
                 script {
                     echo "----------------- START BUILDING DOCKER IMAGE -----------------"
-                    app = docker.build("${IMAGE_NAME}:${VERSION}")
+                    def image_and_version = "${IMAGE_NAME}:${VERSION}"
+                    app = docker.build(image_and_version)
                     echo "------------------ END BUILDING DOCKER IMAGE ------------------"
                 }
             }
