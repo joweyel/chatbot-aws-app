@@ -87,17 +87,17 @@ pipeline {
             }
         }
 
-        stage('Get EKS cluster credentials') 
-        {
-            steps 
-            {
-                script 
-                {
-                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'cv_app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                        sh 'aws eks update-kubeconfig --region $AWS_REGION --name jw-eks-01'
-                    }
-                }
-            }
-        }
+        // stage('Get EKS cluster credentials')
+        // {
+        //     steps
+        //     {
+        //         script
+        //         {
+        //             withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'cv_app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+        //                 sh 'aws eks update-kubeconfig --region $AWS_REGION --name jw-eks-01'
+        //             }
+        //         }
+        //     }
+        // }
     }
 }
