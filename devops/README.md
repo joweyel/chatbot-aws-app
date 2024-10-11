@@ -180,6 +180,6 @@ The pipeline should now be able to be triggered with every `git push` command.
   - For `ECR_REGISTRY` (find the URI of *`cv-app-ecr-repo`* in the ECR section of AWS)
     - **Kind**: `Secret test`
       - **Scope**: `General`
-      - **Secret**: `<user-id>.dkr.ecr.<aws-region>.amazonaws.com/`  (example)
+      - **Secret**: `<user-id>.dkr.ecr.<aws-region>.amazonaws.com`  (example)
       - **ID**: `ecr_registry_url`
   

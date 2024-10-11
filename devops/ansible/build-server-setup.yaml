@@ -119,3 +119,20 @@
 
   - name: Move kubectl to /usr/local/bin
     command: mv "/home/{{ ansible_user }}/kubectl" /usr/local/bin/kubectl
+
+  - name: Download Helm
+    get_url:
+      url: "https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3"
+      dest: "/home/{{ ansible_user }}/get_helm.sh"
+      mode: '0755'
+
+  - name: Install Helm
+    command: "/home/{{ ansible_user }}/get_helm.sh"
+
+  - name: Verify Helm installation
+    command: helm version
+    register: helm_version_result
+
+  - name: Show Helm version
+    debug:
+      var: helm_version_result.stdout

@@ -47,7 +47,7 @@ resource "aws_instance" "build-server" {
   subnet_id              = aws_subnet.app-public-subnet-01.id
 
   iam_instance_profile = module.ecr.ecr_instance_profile_name
-  
+
 
   tags = {
     Name = "build-server"
@@ -219,6 +219,7 @@ resource "aws_route_table_association" "app-rta-public-subnet-02" {
 module "ecr" {
   source        = "./ecr"
   ecr_repo_name = var.ecr_repo_name
+  region        = var.region
 }
 
 # module "sgs" {

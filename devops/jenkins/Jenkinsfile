@@ -1,5 +1,3 @@
-def version = "0.1"
-
 pipeline {
     agent
     {
@@ -16,6 +14,7 @@ pipeline {
         ECR_REGISTRY = credentials("ecr_registry_url")
         ECR_REPOSITORY = "cv-app-ecr-repo"
         IMAGE_NAME = "${ECR_REGISTRY}/${ECR_REPOSITORY}/face-landmark-app"
+        VERSION = "0.1"
         IMAGE_AND_VERSION = "$IMAGE_NAME:$VERSION"
     }
 
