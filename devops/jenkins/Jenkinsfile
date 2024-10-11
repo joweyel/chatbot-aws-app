@@ -1,3 +1,4 @@
+def version = "0.1"
 
 pipeline {
     agent
@@ -15,8 +16,7 @@ pipeline {
         ECR_REGISTRY = credentials("ecr_registry_url")
         ECR_REPOSITORY = "cv-app-ecr-repo"
         IMAGE_NAME = "${ECR_REGISTRY}/${ECR_REPOSITORY}/face-landmark-app"
-        IMAGE_AND_VERSION = "$IMAGE_NAME:$VERSION"
-        VERSION = "0.0"
+        // IMAGE_AND_VERSION = "$IMAGE_NAME:$VERSION"
     }
 
     stages
@@ -62,6 +62,7 @@ pipeline {
             steps {
                 script {
                     echo "----------------- START BUILDING DOCKER IMAGE -----------------"
+                    def image_and_version = "$IMAGE_NAME:${version}"
                     sh "docker build -t $IMAGE_AND_VERSION ."
                     echo "------------------ END BUILDING DOCKER IMAGE ------------------"
                 }
@@ -82,6 +83,7 @@ pipeline {
             steps {
                 script {
                     echo '<--------------- DOCKER PUBLISH START --------------->'
+                    def image_and_version = "$IMAGE_NAME:${version}"
                     sh "docker push ${image_and_version}"
                     echo '<---------------- DOCKER PUBLISH END ---------------->'
                 }
