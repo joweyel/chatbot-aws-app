@@ -82,8 +82,9 @@ pipeline {
             steps {
                 script {
                     echo '<--------------- DOCKER PUBLISH START --------------->'
-                    sh "docker tag $IMAGE_NAME:$VERSION $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION"
-                    sh "docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION"
+                    // sh "docker tag $IMAGE_NAME:$VERSION $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION"
+                    // sh "docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION"
+                    sh "docker push ${IMAGE_AND_VERSION}"
                     echo '<---------------- DOCKER PUBLISH END ---------------->'
                 }
             }
