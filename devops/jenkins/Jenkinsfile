@@ -15,6 +15,7 @@ pipeline {
         ECR_REGISTRY = credentials("ecr_registry_url")
         ECR_REPOSITORY = "cv-app-ecr-repo"
         IMAGE_NAME = "${ECR_REGISTRY}/${ECR_REPOSITORY}/face-landmark-app"
+        IMAGE_AND_VERSION = "$IMAGE_NAME:$VERSION"
         VERSION = "0.0"
     }
 
@@ -61,8 +62,7 @@ pipeline {
             steps {
                 script {
                     echo "----------------- START BUILDING DOCKER IMAGE -----------------"
-                    def image_and_version = "${IMAGE_NAME}:${VERSION}"
-                    app = docker.build(image_and_version)
+                    sh "docker build -t $IMAGE_AND_VERSION ."
                     echo "------------------ END BUILDING DOCKER IMAGE ------------------"
                 }
             }
@@ -82,7 +82,7 @@ pipeline {
             steps {
                 script {
                     echo '<--------------- DOCKER PUBLISH START --------------->'
-                    app.push()
+                    sh "docker push ${image_and_version}"
                     echo '<---------------- DOCKER PUBLISH END ---------------->'
                 }
             }
