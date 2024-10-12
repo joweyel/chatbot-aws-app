@@ -14,7 +14,7 @@ pipeline {
         ECR_REGISTRY = credentials("ecr_registry_url")
         ECR_REPOSITORY = "face-landmark-app"
         REPOSITORY_URI = "${ECR_REGISTRY}/${ECR_REPOSITORY}"
-        VERSION = "0.1"
+        // VERSION = "0.1"
     }
 
     stages
@@ -34,6 +34,18 @@ pipeline {
                 echo "------------------ END PYTHON SETUP ------------------"
             }
         }
+
+        stage("Extract Version") {
+            steps {
+                script {
+                    env.VERSION = sh(script: 
+                        'grep -oP "(?<=version = \")[^\"]+" ${WORKSPACE}/pyproject.toml', 
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }
+
         stage("Run Tests") {
             steps {
                 echo "----------------- START Testing -----------------"
@@ -87,17 +99,30 @@ pipeline {
             }
         }
 
-        // stage('Get EKS cluster credentials')
-        // {
-        //     steps
-        //     {
-        //         script
-        //         {
-        //             withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'cv_app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-        //                 sh 'aws eks update-kubeconfig --region $AWS_REGION --name jw-eks-01'
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Get EKS cluster credentials')
+        {
+            steps
+            {
+                script
+                {
+                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'cv_app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        sh 'aws eks update-kubeconfig --region $AWS_REGION --name app-eks-01'
+                    }
+                }
+            }
+        }
+
+        stage("Deploy") {
+            steps {
+                script {
+                    sh """
+                    helm upgrade --install cv-app ${WORKSPACE}/devops/kubernetes/slFaceApp \\
+                    --set image.repository=$REPOSITORY_URI \\
+                    --set image.tag=$VERSION \\
+                    --set replicaCount=2
+                    """
+                }
+            }
+        }
     }
 }

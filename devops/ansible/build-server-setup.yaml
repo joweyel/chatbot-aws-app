@@ -136,3 +136,9 @@
   - name: Show Helm version
     debug:
       var: helm_version_result.stdout
+
+  - name: Add stable Helm repo
+    command: helm repo add stable https://charts.helm.sh/stable
+  
+  - name: Update Helm repos (stable)
+    command: helm repo update
