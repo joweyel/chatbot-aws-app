@@ -1,4 +1,4 @@
-[tool.poetry]
+[project]
 name = "face-landmark-app"
 version = "0.1"
 

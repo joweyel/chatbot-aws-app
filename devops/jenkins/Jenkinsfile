@@ -35,13 +35,11 @@ pipeline {
             }
         }
 
-        stage("Extract Version") {
+        stage("Get Version") {
             steps {
                 script {
-                    env.VERSION = sh(script: 
-                        'grep -oP "(?<=version = \")[^\"]+" ${WORKSPACE}/pyproject.toml', 
-                        returnStdout: true
-                    ).trim()
+                    env.VERSION = sh(script: "python3 ${WORKSPACE}/util/get_version.py ${WORKSPACE}", returnStdout: true).trim()
+                    echo "Version: ${env.VERSION}"
                 }
             }
         }
