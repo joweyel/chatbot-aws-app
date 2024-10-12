@@ -14,7 +14,6 @@ pipeline {
         ECR_REGISTRY = credentials("ecr_registry_url")
         ECR_REPOSITORY = "face-landmark-app"
         REPOSITORY_URI = "${ECR_REGISTRY}/${ECR_REPOSITORY}"
-        // VERSION = "0.1"
     }
 
     stages
@@ -38,7 +37,10 @@ pipeline {
         stage("Get Version") {
             steps {
                 script {
-                    env.VERSION = sh(script: "python3 ${WORKSPACE}/util/get_version.py ${WORKSPACE}", returnStdout: true).trim()
+                    env.VERSION = sh(
+                        script: ". ${WORKSPACE}/${VENV_NAME}/bin/activate && python3 ${WORKSPACE}/util/get_version.py ${WORKSPACE}", 
+                        returnStdout: true
+                    ).trim()
                     echo "Version: ${env.VERSION}"
                 }
             }
