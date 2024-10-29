@@ -1,4 +1,13 @@
-streamlit==1.39.0
-numpy==1.26.4
-opencv-python-headless==4.10.0.84
-opencv-contrib-python-headless==4.10.0.84
+flask
+flask-login
+flask-sqlalchemy
+flask_wtf
+sqlalchemy
+openai
+langchain
+langchain_community
+langchain-openai
+langgraph
+langgraph-checkpoint-sqlite
+pygments
+markdown

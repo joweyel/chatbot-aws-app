@@ -1,6 +1,6 @@
 [project]
-name = "face-landmark-app"
-version = "0.1"
+name = "chatbot-aws-app"
+version = "0.0"
 
 [tool.pylint.messages_control]
 disable = [
@@ -8,7 +8,8 @@ disable = [
     "missing-final-newline",
     "missing-module-docstring",
     "invalid-name",
-    "redefined-outer-name"
+    "redefined-outer-name",
+    "import-outside-toplevel"
 ]
 
 [tool.black]

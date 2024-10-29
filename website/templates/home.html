@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}ChatBot{% endblock %}
+
+{% block content %}
+<ul class="list-group list-group-flush" id="chat_messages">
+    {% if chat %}
+        {% for msg in chat.messages %}
+            {% if msg.role == "user" %}
+                <div class="chat-message user-message">{{ msg.content | safe }}</div>
+            {% else %}
+                <div class="chat-message assistant-message">{{ msg.content | safe }}</div>
+            {% endif %}
+            <!-- <li class="list-group-item"><div>{{ msg.content }}</div></li> -->
+            <br />
+
+        {% endfor %}
+    {% endif %}
+</ul>
+
+<form id="chat-form" method="POST">
+    <textarea 
+        name="user_message"
+        id="user_message"
+        class="form-control"
+        placeholder="Ask your question..."
+        maxlength="4000"
+    ></textarea>
+    <br />
+    <div id="send-button-div">
+        <button type="submit" id="send-button" class="btn btn-primary">Send Message</button>
+    </div>
+</form>
+<!-- <form id="clear-form" method="POST" action="{{ url_for('views.reset_chat') }}"> -->
+<!-- <form id="clear-form" method="POST">
+    <div>
+        <button type="submit" id="clear_chat" class="btn btn-danger">Clear Chat</button>
+    </div>
+</form> -->
+
+{% endblock %}

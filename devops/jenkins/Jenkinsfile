@@ -12,8 +12,9 @@ pipeline {
         AWS_REGION = credentials("aws_region")
         AWS_PROFILE = credentials("aws_profile")
         ECR_REGISTRY = credentials("ecr_registry_url")
-        ECR_REPOSITORY = "face-landmark-app"
+        ECR_REPOSITORY = "flaskgpt-aws-app"
         REPOSITORY_URI = "${ECR_REGISTRY}/${ECR_REPOSITORY}"
+        OPENAI_API_KEY = credentials("OPENAI_API_KEY")  // TODO: add to credentials
     }
 
     stages
@@ -24,8 +25,6 @@ pipeline {
             {
                 echo "----------------- START PYTHON SETUP -----------------"
                 sh """
-                    chmod +x download_models.sh
-                    ./download_models.sh
                     python3.9 -m venv ${WORKSPACE}/${VENV_NAME}
                     . ${WORKSPACE}/${VENV_NAME}/bin/activate
                     pip install -r requirements-dev.txt

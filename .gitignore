@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 
@@ -167,3 +168,6 @@ cython_debug/
 **/.terraform/*
 **/.terraform.lock.hcl
 **/*.pem
+
+# Ecluding the database:
+instance/database.db
