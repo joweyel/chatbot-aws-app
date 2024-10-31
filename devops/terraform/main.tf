@@ -27,7 +27,7 @@ data "template_file" "hosts_file" {
 
 resource "aws_instance" "jenkins-server" {
   ami           = "ami-005fc0f236362e99f" # Ubuntu 22.04
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
   key_name      = "app_key"
 
   vpc_security_group_ids = [aws_security_group.app-sg.id]
@@ -56,7 +56,7 @@ resource "aws_instance" "build-server" {
 
 resource "aws_instance" "ansible" {
   ami           = "ami-005fc0f236362e99f" # Ubuntu 22.04
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
   key_name      = "app_key"
 
   vpc_security_group_ids = [aws_security_group.app-sg.id]

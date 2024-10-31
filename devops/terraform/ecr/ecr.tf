@@ -42,7 +42,7 @@ resource "aws_iam_policy" "ecr_access_policy" {
             "ecr:DescribeImages",
             "ecr:GetAuthorizationToken"
         ],
-        "Resource": "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/face-landmark-app"
+        "Resource": "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/flaskgpt-app"
       }
     ]
   }
