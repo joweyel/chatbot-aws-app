@@ -51,6 +51,17 @@ terraform plan
 terraform apply
 ```
 
+When destroying the ressources, you first have to delete the docker image that is stored in the ECR service, otherwise the `destroy`-command will fail until it is done:
+```bash
+ECR_REPO_NAME=flaskgpt-app
+# 1. List the images in your repository to get the image IDs (find out the image tag(s) here)
+aws ecr list-images --repository-name ${ECR_REPO_NAME}
+# 2. Delete the images using their image IDs:
+aws ecr batch-delete-image --repository-name ${ECR_REPO_NAME} --image-ids imageTag=your-image-tag
+
+terrform destroy
+```
+
 ## Jenkins setup
 1. At the initial login you will be prompted to obtain the login password from here:
    ```bash
