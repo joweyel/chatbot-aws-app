@@ -1,6 +1,6 @@
-# Streamlit App for facial landmark detection
-This is a OpenAI chat web application that uses flask as backend. The goal of this app is to be deployed to AWS.
+# Flask App with OpenAI-Chatbot deployed on AWS with DevOps pipeline
 
+This is a OpenAI chat web application that uses flask as backend. The goal of this app is to be deployed to AWS.
 
 ## Running the app locally
 Create and activate a virtual environment
@@ -14,8 +14,12 @@ Install dependencies
 pip install -r requirements.txt
 ```
 
-# (Optional): Virtual environment with dependencies for development and testing
-pip install -r requirements-dev.txt
+**(Optional): Creating a virtual environment with devops-related dependencies**
+```bash
+python3.9 -m venv venv-dev
+source venv-dev/bin/activate
+pip install -r requirements-devtxt
+```
 
 Setting the OpenAI api key to access the llm:
 ```bash

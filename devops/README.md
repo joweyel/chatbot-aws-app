@@ -4,7 +4,7 @@
 
 ### Getting AWS credentials
 - <u>Create IAM user</u>
-  - **User name**: `cv_app_user`
+  - **User name**: `cv_app_user` (can be chosen arbitrarily)
   - **Attach policies directly**: `AdministratorAccess` (can be changed later)
 - <u>Generate Access keys</u>
   - **Use case**: `Command Line Interface (CLI)`
@@ -41,7 +41,7 @@ To create the required cloud infrastructure terraform is used. This creates a vp
 - ECR
 - EKS
 
-The application of Ansible playbooks is already automated within terraform and you can therefore directly use the jenkins-server when the provisioning is done. The main terraform file is [main.tf](./terraform/main.tf)
+The application of the Ansible playbooks is already automated within terraform and you can therefore directly use the jenkins-server when the provisioning is done. The main terraform file is [main.tf](./terraform/main.tf)
 
 To create the ressources, run the following commands:
 ```bash

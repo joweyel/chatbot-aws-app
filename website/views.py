@@ -2,8 +2,6 @@ from flask import (  # pylint: disable=W0611
     Blueprint,
     render_template,
     request,
-    redirect,
-    url_for,
     flash,
     jsonify,
     current_app,
@@ -11,8 +9,9 @@ from flask import (  # pylint: disable=W0611
 from langchain_core.messages import HumanMessage
 from website.utils.utils import parseMD
 
-from . import db, init_chatbot
-from .models import Chat, Message
+# from . import db, init_chatbot
+from . import db
+from . import init_chatbot
 
 views = Blueprint("views", __name__)
 
@@ -26,6 +25,8 @@ def home():
         return render_template("home.html", chat=None)
 
     chat_id = current_app.config["llm_config"]["configurable"]["thread_id"]
+
+    from . import Chat, Message
 
     if request.method == "POST":
         user_msg = request.form.get("user_message")
@@ -70,6 +71,8 @@ def home():
 
 @views.route("/reset_chat", methods=["POST"])
 def reset_chat():
+    from . import Chat, Message
+
     print("reset_chat")
     # Reset the chatbot (start with fresh memory)
     init_chatbot(current_app)

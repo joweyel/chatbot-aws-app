@@ -9,7 +9,8 @@ disable = [
     "missing-module-docstring",
     "invalid-name",
     "redefined-outer-name",
-    "import-outside-toplevel"
+    "import-outside-toplevel",
+    "too-few-public-methods"
 ]
 
 [tool.black]
