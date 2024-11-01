@@ -108,8 +108,8 @@ Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Plugins]` -> `[Available plugins]
       - **Labels**: `python`
       - **Usage**: Use this node as much as possible
       - **Launch method**: `Launch agents via SSH`
-      - **Host**: `Private_IP_of_Slave`
-      - **Credentials**: `Jenkins_Slave_Credentials`
+      - **Host**: `Private_IP_of_build_server`
+      - **Credentials**: `build server credentials` (created in previous step)
       - **Host Key Verification Strategy**: Non verifying Verification Strategy
       - **Availability**: Keep this agent online as much as possible
 
@@ -124,7 +124,7 @@ Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Plugins]` -> `[Available plugins]
   - **Definition**: `Pipeline script from SCM`
     - **SCM**: `Git`
       - **Repositories**: 
-        - **Repository URL**: https://github.com/joweyel/face-landmark-app
+        - **Repository URL**: https://github.com/joweyel/chatbot-aws-app
         - **Credentials**: `-none-` (not required for public repo)
       - **Branches to build**:
         - **Branch Specifier**: `*/main`
