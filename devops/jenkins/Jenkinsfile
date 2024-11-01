@@ -12,9 +12,9 @@ pipeline {
         AWS_REGION = credentials("aws_region")
         AWS_PROFILE = credentials("aws_profile")
         ECR_REGISTRY = credentials("ecr_registry_url")
-        ECR_REPOSITORY = "flaskgpt-aws-app"
+        ECR_REPOSITORY = "flaskgpt-app"
         REPOSITORY_URI = "${ECR_REGISTRY}/${ECR_REPOSITORY}"
-        OPENAI_API_KEY = credentials("OPENAI_API_KEY")  // TODO: add to credentials
+        // OPENAI_API_KEY = credentials("OPENAI_API_KEY")  // TODO: add to credentials
     }
 
     stages
@@ -50,7 +50,7 @@ pipeline {
                 echo "----------------- START Testing -----------------"
                 sh """
                     . $WORKSPACE/${VENV_NAME}/bin/activate
-                    pytest tests/ -v
+                    pytest tests/ -vv
                 """
                 echo "------------------ END Testing ------------------"
             }
@@ -61,7 +61,7 @@ pipeline {
                 echo "----------------- START LINTING -----------------"
                 sh """
                     . $WORKSPACE/${VENV_NAME}/bin/activate
-                    pylint streamlit_app.py
+                    pylint run.py website/
                 """
                 echo "------------------ END LINTING ------------------"
             }
@@ -98,30 +98,49 @@ pipeline {
             }
         }
 
-        stage('Get EKS cluster credentials')
-        {
-            steps
-            {
-                script
-                {
-                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'cv_app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                        sh 'aws eks update-kubeconfig --region $AWS_REGION --name app-eks-01'
-                    }
-                }
-            }
-        }
+        // stage('Get EKS cluster credentials')
+        // {
+        //     steps
+        //     {
+        //         script
+        //         {
+        //             withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+        //                 sh 'aws eks update-kubeconfig --region $AWS_REGION --name app-eks-01'
+        //             }
+        //         }
+        //     }
+        // }
 
-        stage("Deploy") {
-            steps {
-                script {
-                    sh """
-                    helm upgrade --install cv-app ${WORKSPACE}/devops/kubernetes/slFaceApp \\
-                    --set image.repository=$REPOSITORY_URI \\
-                    --set image.tag=$VERSION \\
-                    --set replicaCount=2
-                    """
-                }
-            }
-        }
+        // starge("Create Kubernetes secret")
+        // {
+        //     steps
+        //     {
+        //         script
+        //         {
+        //             withCredentials([string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')]) 
+        //             {
+        //                 sh """
+        //                     kubectl create secret generic openai-secret --from-literal=OPENAI_API_KEY={env.OPENAI_API_KEY} --dry-run=client -o yaml | kubectl apply -f -
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
+
+        // stage("Deploy") 
+        // {
+        //     steps 
+        //     {
+        //         script 
+        //         {
+        //             sh """
+        //             helm upgrade --install flaskgpt-app ${WORKSPACE}/devops/kubernetes/flaskGptApp \\
+        //             --set image.repository=$REPOSITORY_URI \\
+        //             --set image.tag=$VERSION \\
+        //             --set replicaCount=2
+        //             """
+        //         }
+        //     }
+        // }
     }
 }

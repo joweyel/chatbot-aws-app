@@ -6,5 +6,5 @@ variable "region" {
 variable "ecr_repo_name" {
   description = "ECR repo name"
   type        = string
-  default     = "face-landmark-app"
+  default     = "flaskgpt-app"
 }

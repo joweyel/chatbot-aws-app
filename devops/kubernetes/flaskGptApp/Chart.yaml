@@ -1,0 +1,5 @@
+apiVersion: v2
+name: flaskGptApp
+description: A Helm chart for deploying a flask web-app that provides a chatbot
+type: application
+version: 0.1.0

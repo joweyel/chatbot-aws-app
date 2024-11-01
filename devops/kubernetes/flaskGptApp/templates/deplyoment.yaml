@@ -1,23 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cv-app
-  namespace: cv
+  name: fgpt-app
+  namespace: fgpt
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: cv-app
+      app: fgpt-app
   template:
     metadata:
       labels:
-        app: cv-app
+        app: fgpt-app
     spec:
       # imagePullSecrets:  # Not needed (EKS worker has role for ECR-access)
       # - name: cred
       containers:
-      - name: cv-app-container
+      - name: fgpt-app-container
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: Always
         ports:
-        - containerPort: 8501
+        - containerPort: 5000
+       env:
+       - name: OPENAI_API_KEY
+         valueFrom:
+           secretKeyRef:
+             name: {{ .Values.secretName }}
+             key: OPENAI_API_KEY

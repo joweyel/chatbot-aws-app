@@ -116,7 +116,7 @@ Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Plugins]` -> `[Available plugins]
 ### Create Pipeline
 - Go to `[Dashboard]` -> `[All]` -> `[New Item]`
 - <u>Create Item with these properties:</u>
-    - Item name: `cv_app_pipeline`
+    - Item name: `app_pipeline`
     - Item type: `pipeline`
 - <u>Check the following:</u>
   - GitHub hook trigger for GITScm polling
@@ -128,6 +128,7 @@ Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Plugins]` -> `[Available plugins]
         - **Credentials**: `-none-` (not required for public repo)
       - **Branches to build**:
         - **Branch Specifier**: `*/main`
+    - **Script Path**: `devops/jenkins/Jenkinsfile`
 
 ### Adding GitHub credentials to Jenkins
 Generate a `Personal access tokens (classic)` on Github in the settings [here](https://github.com/settings/tokens) and name it `jenkins-token`
@@ -144,10 +145,11 @@ Set the parameters as follows:
   - **Scope**: Global
   - **Username**: <your_git_username>
   - **Password**: <git_token>
-  - **ID**: Github_Cred
+  - **ID**: `Github_Cred`
+  - **Description**: `Github_Cred`
 
 ### Add Webhook to Github
-- Go to settings of your forked `face-landmark-app` repo here: https://github.com/your_user/face-landmark-app/settings/hooks/
+- Go to settings of your forked `chatbot-aws-app` repo here: https://github.com/your_user/chatbot-aws-app/settings/hooks/
   - **Payload URL**: `http://JENKINS_PUBLIC_IP:8080/github-webhook/`
   - **Content type**: `application/json`
   - **SSL verification**:
@@ -163,14 +165,14 @@ The pipeline should now be able to be triggered with every `git push` command.
   - Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Credentials]` -> `[System]` -> `[Global credentials (unrestricted)]` -> `[+ Add Credentials]` and choose the following settings
   - **Kind**: `AWS Credentials`
     - **Scope**: `Global`
-    - **ID**: `cv_app_user-aws-creds`
-    - **Description**: `cv_app_user-aws-creds`
+    - **ID**: `app_user-aws-creds`
+    - **Description**: `app_user-aws-creds`
     - **Access Key ID**: `<AWS_ACCESS_KEY_ID>`
     - **Secret Access Key**: `<AWS_SECRET_ACCESS_KEY>`
   
   The AWS credentials can now be set by using the following code inside steps of a stage:
   ```groovy
-    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'cv_app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
         ...
     }
   ```
@@ -178,19 +180,27 @@ The pipeline should now be able to be triggered with every `git push` command.
 - <u><b>Setting AWS region / profile & ECR Registry URL as credentials</b></u>
   - Setting them as credentials avoids putting sensitive information in the [Jenkinsfile](./jenkins/Jenkinsfile)
   - Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Credentials]` -> `[System]` -> `[Global credentials (unrestricted)]` -> `[+ Add Credentials]` and choose the following settings
+  
   - For `AWS_REGION`:
-    - **Kind**: `Secret test`
-      - **Scope**: `General`
+    - **Kind**: `Secret text`
+      - **Scope**: `System`
       - **Secret**: `us-east-1`  (where everything is done)
       - **ID**: `aws_region`
+  
   - For `AWS_PROFILE`:
-    - **Kind**: `Secret test`
-      - **Scope**: `General`
-      - **Secret**: `cv_app_user`  (where everything is done)
+    - **Kind**: `Secret text`
+      - **Scope**: `System`
+      - **Secret**: `app_user`  (where everything is done)
       - **ID**: `aws_profile`
-  - For `ECR_REGISTRY` (find the URI of *`cv-app-ecr-repo`* in the ECR section of AWS)
-    - **Kind**: `Secret test`
-      - **Scope**: `General`
+  
+  - For `ECR_REGISTRY` (find the URI of *`flaskgpt-app`* in the ECR section of AWS)
+    - **Kind**: `Secret text`
+      - **Scope**: `System`
       - **Secret**: `<user-id>.dkr.ecr.<aws-region>.amazonaws.com`  (example)
       - **ID**: `ecr_registry_url`
   
+  - For `OPENAI_API_KEY` (your OpenAI API key)
+    - **Kind**: `Secret text`
+      - **Scope**: `System`
+      - **Secret**: `sk-...`  (provide your own key here)
+      - **ID**: `OPENAI_API_KEY`
