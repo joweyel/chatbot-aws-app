@@ -102,6 +102,10 @@ pipeline {
                     string(credentialsId: 'aws_profile', variable: 'AWS_PROFILE')
                 ]) {
                     sh """
+                        AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                        AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                        AWS_DEFAULT_REGION=${AWS_REGION}
+                        AWS_PROFILE=${AWS_PROFILE}
                         aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
                     """
                 }
@@ -130,7 +134,7 @@ pipeline {
                 script
                 {
                     withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                        sh 'aws eks update-kubeconfig --region $AWS_REGION --name app-eks-01'
+                        sh 'aws eks update-kubeconfig --region ${AWS_REGION} --name app-eks-01'
                     }
                 }
             }
