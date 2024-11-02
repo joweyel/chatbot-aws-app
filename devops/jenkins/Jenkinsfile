@@ -33,9 +33,12 @@ pipeline {
             }
         }
 
-        stage("Get Version") {
-            steps {
-                script {
+        stage("Get Version") 
+        {
+            steps 
+            {
+                script 
+                {
                     env.VERSION = sh(
                         script: ". ${WORKSPACE}/${VENV_NAME}/bin/activate && python3 ${WORKSPACE}/util/get_version.py ${WORKSPACE}", 
                         returnStdout: true
@@ -45,8 +48,10 @@ pipeline {
             }
         }
 
-        stage("Run Tests") {
-            steps {
+        stage("Run Tests") 
+        {
+            steps 
+            {
                 echo "----------------- START Testing -----------------"
                 withCredentials([string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')]) 
                 {
@@ -60,8 +65,10 @@ pipeline {
             }
         }
 
-        stage("Linting the code") {
-            steps {
+        stage("Linting the code") 
+        {
+            steps 
+            {
                 echo "----------------- START LINTING -----------------"
                 sh """
                     . $WORKSPACE/${VENV_NAME}/bin/activate
@@ -71,7 +78,8 @@ pipeline {
             }
         }
         
-        stage("Building Docker Image") {
+        stage("Building Docker Image") 
+        {
             steps {
                 script {
                     echo "----------------- START BUILDING DOCKER IMAGE -----------------"
@@ -81,19 +89,26 @@ pipeline {
             }
         }
 
-        stage("Login to ECR") {
+        stage("Login to ECR") 
+        {
             steps {
                 echo "------------------- LOGIN TO ECR ---------------------"
-                sh """
-                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
-                """
+                withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) 
+                {
+                    sh """
+                        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+                    """
+                }
                 echo "------------------ END LOGIN TO ECR ------------------"
             }
         }
 
-        stage("Publish Docker Image to ECR") {
-            steps {
-                script {
+        stage("Publish Docker Image to ECR") 
+        {
+            steps 
+            {
+                script 
+                {
                     echo '<--------------- DOCKER PUBLISH START --------------->'
                     sh "docker tag $ECR_REPOSITORY:$VERSION $REPOSITORY_URI:$VERSION"
                     sh "docker push $REPOSITORY_URI:$VERSION"
