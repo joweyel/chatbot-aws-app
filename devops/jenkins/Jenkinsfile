@@ -136,7 +136,7 @@ pipeline {
             }
         }
 
-        starge("Create Kubernetes secret")
+        stage("Create Kubernetes secret")
         {
             steps
             {
