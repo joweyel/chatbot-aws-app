@@ -102,10 +102,9 @@ pipeline {
                     // string(credentialsId: 'aws_profile', variable: 'AWS_PROFILE')
                 ]) {
                     sh """
-                        AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                        AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-                        AWS_DEFAULT_REGION=${AWS_REGION}
-                        // AWS_PROFILE=${AWS_PROFILE}
+                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                        export AWS_DEFAULT_REGION=${AWS_REGION}
                         aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
                     """
                 }
