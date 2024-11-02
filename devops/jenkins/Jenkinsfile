@@ -48,10 +48,13 @@ pipeline {
         stage("Run Tests") {
             steps {
                 echo "----------------- START Testing -----------------"
-                sh """
-                    . $WORKSPACE/${VENV_NAME}/bin/activate
-                    pytest tests/ -vv
-                """
+                withCredentials([string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')]) 
+                {
+                    sh """
+                        . $WORKSPACE/${VENV_NAME}/bin/activate
+                        pytest tests/ -vv
+                    """
+                }
                 echo "------------------ END Testing ------------------"
             }
         }

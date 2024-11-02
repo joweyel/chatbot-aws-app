@@ -2,8 +2,7 @@ import os
 import json
 import pytest
 from flask import current_app
-from website import create_app, db
-from website.models import Message, Chat
+from website import create_app, db, Message, Chat
 
 
 @pytest.fixture
@@ -51,8 +50,6 @@ def test_home_post(client):
 
 
 def test_clear_chat(client):
-    from website.models import Chat, Message
-
     response = client.post("/", data={"user_message": "Hello!"})
     assert Chat.query.count() == 1  # 1 chat
     assert Message.query.count() == 2  # 2 messages per interaction (usr, ai)
