@@ -93,7 +93,7 @@ pipeline {
         {
             steps {
                 echo "------------------- LOGIN TO ECR ---------------------"
-                withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) 
+                withCredentials([aws(credentialsId: 'app_user-aws-creds')]) 
                 {
                     sh """
                         aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
@@ -123,7 +123,7 @@ pipeline {
         //     {
         //         script
         //         {
-        //             withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+        //             withCredentials([aws(credentialsId: 'app_user-aws-creds']) {
         //                 sh 'aws eks update-kubeconfig --region $AWS_REGION --name app-eks-01'
         //             }
         //         }
