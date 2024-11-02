@@ -52,7 +52,7 @@ pipeline {
                 {
                     sh """
                         . $WORKSPACE/${VENV_NAME}/bin/activate
-                        pytest tests/ -vv
+                        pytest ${WORKSPACE}/tests/ -vv
                     """
                 }
                 echo "------------------ END Testing ------------------"
