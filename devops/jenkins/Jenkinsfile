@@ -164,20 +164,20 @@ pipeline {
             }
         }
 
-        // stage("Deploy") 
-        // {
-        //     steps 
-        //     {
-        //         script 
-        //         {
-        //             sh """
-        //             helm upgrade --install flaskgpt-app ${WORKSPACE}/devops/kubernetes/flaskGptApp \\
-        //             --set image.repository=$REPOSITORY_URI \\
-        //             --set image.tag=$VERSION \\
-        //             --set replicaCount=2
-        //             """
-        //         }
-        //     }
-        // }
+        stage("Deploy") 
+        {
+            steps 
+            {
+                script 
+                {
+                    sh """
+                    helm upgrade --install flaskgpt-app ${WORKSPACE}/devops/kubernetes/flaskGptApp \\
+                    --set image.repository=$REPOSITORY_URI \\
+                    --set image.tag=$VERSION \\
+                    --set replicaCount=2
+                    """
+                }
+            }
+        }
     }
 }
