@@ -10,6 +10,7 @@ pipeline {
     {
         VENV_NAME = "build-venv"
         AWS_REGION = credentials("aws_region")
+        AWS_DEFAULT_REGION = credentials("aws_region")
         AWS_PROFILE = credentials("aws_profile")
         ECR_REGISTRY = credentials("ecr_registry_url")
         ECR_REPOSITORY = "flaskgpt-app"
@@ -93,9 +94,10 @@ pipeline {
         {
             steps {
                 echo "------------------- LOGIN TO ECR ---------------------"
-                withCredentials([aws(credentialsId: 'app_user-aws-creds')]) 
+                withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')])
                 {
                     sh """
+                        export AWS_PROFILE=${env.AWS_PROFILE}
                         aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
                     """
                 }
@@ -123,7 +125,7 @@ pipeline {
         //     {
         //         script
         //         {
-        //             withCredentials([aws(credentialsId: 'app_user-aws-creds']) {
+        //             withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
         //                 sh 'aws eks update-kubeconfig --region $AWS_REGION --name app-eks-01'
         //             }
         //         }
