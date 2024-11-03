@@ -21,9 +21,9 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
-       env:
-       - name: OPENAI_API_KEY
-         valueFrom:
-           secretKeyRef:
-             name: {{ .Values.secretName }}
-             key: OPENAI_API_KEY
+        env:
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secretName }}
+              key: OPENAI_API_KEY
