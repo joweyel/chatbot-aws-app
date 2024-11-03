@@ -170,14 +170,21 @@ pipeline {
             {
                 script 
                 {
-                    echo '<--------------- DEPLOY HELM START --------------->'
-                    sh """
-                    helm upgrade --install flaskgpt-app ${WORKSPACE}/devops/kubernetes/flaskGptApp \\
-                    --set image.repository=$REPOSITORY_URI \\
-                    --set image.tag=$VERSION \\
-                    --set replicaCount=2
-                    """
-                    echo '<----------------- DEPLOY HELM END --------------->'
+                    withCredentials([
+                        string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY'),
+                        string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'),
+                        string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')
+                    ])
+                    {
+                        echo '<--------------- DEPLOY HELM START --------------->'
+                        sh """
+                            helm upgrade --install flaskgpt-app ${WORKSPACE}/devops/kubernetes/flaskGptApp \\
+                            --set image.repository=$REPOSITORY_URI \\
+                            --set image.tag=$VERSION \\
+                            --set replicaCount=2
+                        """
+                        echo '<----------------- DEPLOY HELM END --------------->'
+                    }
                 }
             }
         }
