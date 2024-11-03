@@ -171,7 +171,6 @@ pipeline {
                 script 
                 {
                     echo '<--------------- DEPLOY HELM START --------------->'
-
                     sh """
                     helm upgrade --install flaskgpt-app ${WORKSPACE}/devops/kubernetes/flaskGptApp \\
                     --set image.repository=$REPOSITORY_URI \\
