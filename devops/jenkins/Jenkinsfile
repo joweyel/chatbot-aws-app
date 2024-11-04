@@ -156,7 +156,7 @@ pipeline {
                         sh """
                             export KUBECONFIG=/home/ubuntu/.kube/config
                             export OPENAI_API_KEY=${OPENAI_API_KEY}
-                            kubectl create secret generic openai-secret --from-literal=OPENAI_API_KEY=${OPENAI_API_KEY} --dry-run=client -o yaml | kubectl apply -f -
+                            kubectl create secret generic openai-secret --from-literal=OPENAI_API_KEY=${OPENAI_API_KEY} --namespace=fgpt --dry-run=client -o yaml | kubectl apply -f -
                         """
                     }
                     echo '<---------------- KUBERNETES SECRETS END ---------------->'
