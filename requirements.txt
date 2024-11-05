@@ -11,3 +11,4 @@ langgraph
 langgraph-checkpoint-sqlite
 pygments
 markdown
+gunicorn

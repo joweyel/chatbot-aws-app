@@ -145,10 +145,17 @@ resource "aws_security_group" "app-sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  ingress { 
+    description = "Flask access" 
+    from_port = 5000 
+    to_port = 5000 
+    protocol = "tcp" 
+    cidr_blocks = ["0.0.0.0/0"] 
+  }
   ingress {
-    description = "Streamlit access"
-    from_port   = 8501
-    to_port     = 8501
+    description = "EKS Node access"
+    from_port   = 30082
+    to_port     = 30082
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -222,14 +229,14 @@ module "ecr" {
   region        = var.region
 }
 
-module "sgs" {
-  source = "./sg_eks"
-  vpc_id = aws_vpc.app-vpc.id
-}
+# module "sgs" {
+#   source = "./sg_eks"
+#   vpc_id = aws_vpc.app-vpc.id
+# }
 
-module "eks" {
-  source     = "./eks"
-  vpc_id     = aws_vpc.app-vpc.id
-  subnet_ids = [aws_subnet.app-public-subnet-01.id, aws_subnet.app-public-subnet-02.id]
-  sg_ids     = module.sgs.security_group_public
-}
+# module "eks" {
+#   source     = "./eks"
+#   vpc_id     = aws_vpc.app-vpc.id
+#   subnet_ids = [aws_subnet.app-public-subnet-01.id, aws_subnet.app-public-subnet-02.id]
+#   sg_ids     = module.sgs.security_group_public
+# }

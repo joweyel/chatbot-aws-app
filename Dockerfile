@@ -11,10 +11,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install -U pip
-COPY requirements_full.txt run.py /app/
+COPY requirements.txt run.py /app/
 COPY website/ /app/website/
-RUN pip install --no-cache-dir -r requirements_full.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 
 EXPOSE 5000
-ENTRYPOINT [ "python3", "run.py"]
+# ENTRYPOINT [ "python3", "run.py" ]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "run:app"]
