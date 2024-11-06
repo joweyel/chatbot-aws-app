@@ -149,6 +149,9 @@ pipeline {
                     echo '<--------------- CREATE NAMESPACE START --------------->'
                     sh """
                         kubectl create namespace fgpt || echo "Namespace fgpt already exists"
+                        kubectl label namespace fgpt app.kubernetes.io/managed-by=Helm
+                        kubectl annotate namespace fgpt meta.helm.sh/release-name=flaskgpt-app
+                        kubectl annotate namespace fgpt meta.helm.sh/release-namespace=fgpt
                     """
                     echo '<---------------- CREATE NAMESPACE END ---------------->'
                 }
