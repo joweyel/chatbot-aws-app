@@ -149,6 +149,7 @@ pipeline {
                 {
                     echo '<--------------- CREATE NAMESPACE START --------------->'
                     sh """
+                        export KUBECONFIG=${KUBECONFIG}
                         kubectl create namespace fgpt || echo "Namespace fgpt already exists"
                         kubectl label namespace fgpt app.kubernetes.io/managed-by=Helm
                         kubectl annotate namespace fgpt meta.helm.sh/release-name=flaskgpt-app
@@ -173,7 +174,7 @@ pipeline {
                     ])
                     {
                         sh """
-                            export KUBECONFIG=/home/ubuntu/.kube/config
+                            export KUBECONFIG=${KUBECONFIG}
                             export OPENAI_API_KEY=${OPENAI_API_KEY}
                             kubectl create secret generic openai-secret --from-literal=OPENAI_API_KEY=${OPENAI_API_KEY} --namespace fgpt --dry-run=client -o yaml | kubectl apply -f -
                         """
