@@ -182,8 +182,6 @@ pipeline {
                         string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')
                     ])
                     {
-
-                        b
                         sh """
                             export KUBECONFIG=${KUBECONFIG}
                             export OPENAI_API_KEY=${OPENAI_API_KEY}
