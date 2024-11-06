@@ -82,9 +82,9 @@ pipeline {
         {
             steps {
                 script {
-                    echo "----------------- START BUILDING DOCKER IMAGE -----------------"
+                    echo '----------------- START BUILDING DOCKER IMAGE -----------------'
                     sh "docker build -t $ECR_REPOSITORY:$VERSION ."
-                    echo "------------------ END BUILDING DOCKER IMAGE ------------------"
+                    echo '------------------ END BUILDING DOCKER IMAGE ------------------'
                 }
             }
         }
@@ -97,8 +97,8 @@ pipeline {
                 withCredentials([
                     string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), 
                     string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY'), 
-                    string(credentialsId: 'aws_region', variable: 'AWS_REGION'), 
-                    string(credentialsId: 'ecr_registry_url', variable: 'ECR_REGISTRY')
+                    // string(credentialsId: 'aws_region', variable: 'AWS_REGION'), 
+                    // string(credentialsId: 'ecr_registry_url', variable: 'ECR_REGISTRY')
                 ]) {
                     sh """
                         export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
@@ -125,7 +125,7 @@ pipeline {
             }
         }
 
-        stage('Get EKS cluster credentials')
+        stage("Get EKS cluster credentials")
         {
             steps
             {
@@ -133,9 +133,24 @@ pipeline {
                 {
                     echo '<--------------- EKS CREDENTIALS START --------------->'
                     withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                        sh 'aws eks update-kubeconfig --region ${AWS_REGION} --name app-eks-01'
+                        sh "aws eks update-kubeconfig --region ${AWS_REGION} --name app-eks-01"
                     }
                     echo '<---------------- EKS CREDENTIALS END ---------------->'
+                }
+            }
+        }
+
+        stage("Create Kubernetes namespace")
+        {
+            steps
+            {
+                script
+                {
+                    echo '<--------------- CREATE NAMESPACE START --------------->'
+                    sh """
+                        kubectl create namespace fgpt || echo "Namespace fgpt already exists"
+                    """
+                    echo '<---------------- CREATE NAMESPACE END ---------------->'
                 }
             }
         }
@@ -156,8 +171,7 @@ pipeline {
                         sh """
                             export KUBECONFIG=/home/ubuntu/.kube/config
                             export OPENAI_API_KEY=${OPENAI_API_KEY}
-                            kubectl create namespace fgpt || echo "Namespace 'fgpt' already exists!"
-                            kubectl create secret generic openai-secret --from-literal=OPENAI_API_KEY=${OPENAI_API_KEY} --namespace=fgpt --dry-run=client -o yaml | kubectl apply -f -
+                            kubectl create secret generic openai-secret --from-literal=OPENAI_API_KEY=${OPENAI_API_KEY} --namespace fgpt --dry-run=client -o yaml | kubectl apply -f -
                         """
                     }
                     echo '<---------------- KUBERNETES SECRETS END ---------------->'
@@ -180,9 +194,10 @@ pipeline {
                         echo '<--------------- DEPLOY HELM START --------------->'
                         sh """
                             helm upgrade --install flaskgpt-app ${WORKSPACE}/devops/kubernetes/flaskGptApp \\
-                            --set image.repository=$REPOSITORY_URI \\
-                            --set image.tag=$VERSION \\
-                            --set replicaCount=2
+                            --set image.repository=${REPOSITORY_URI} \\
+                            --set image.tag=${VERSION} \\
+                            --set replicaCount=2 \\
+                            --namespace fgpt
                         """
                         echo '<----------------- DEPLOY HELM END --------------->'
                     }
