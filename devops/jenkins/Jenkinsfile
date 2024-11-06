@@ -148,14 +148,16 @@ pipeline {
                 script
                 {
                     echo '<--------------- CREATE NAMESPACE START --------------->'
-                    sh """
-                        export KUBECONFIG=${KUBECONFIG}
-                        kubectl create namespace fgpt || echo "Namespace fgpt already exists"
-                        kubectl label namespace fgpt app.kubernetes.io/managed-by=Helm
-                        kubectl annotate namespace fgpt meta.helm.sh/release-name=flaskgpt-app
-                        kubectl annotate namespace fgpt meta.helm.sh/release-namespace=fgpt
-                    """
-                    echo '<---------------- CREATE NAMESPACE END ---------------->'
+                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        sh """
+                            export KUBECONFIG=${KUBECONFIG}
+                            kubectl create namespace fgpt
+                            kubectl label namespace fgpt app.kubernetes.io/managed-by=Helm
+                            kubectl annotate namespace fgpt meta.helm.sh/release-name=flaskgpt-app
+                            kubectl annotate namespace fgpt meta.helm.sh/release-namespace=fgpt
+                        """
+                        echo '<---------------- CREATE NAMESPACE END ---------------->'
+                    }
                 }
             }
         }
