@@ -151,7 +151,14 @@ pipeline {
                     withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                         sh """
                             export KUBECONFIG=${KUBECONFIG}
-                            kubectl create namespace fgpt
+
+                            if ! kubectl get namespace fgpt; then
+                                kubectl create namespace fgpt
+                                echo "Namespace fgpt created"
+                            else
+                                echo "Namespace fgpt already exists"
+                            fi
+                            
                             kubectl label namespace fgpt app.kubernetes.io/managed-by=Helm
                             kubectl annotate namespace fgpt meta.helm.sh/release-name=flaskgpt-app
                             kubectl annotate namespace fgpt meta.helm.sh/release-namespace=fgpt
@@ -175,6 +182,8 @@ pipeline {
                         string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')
                     ])
                     {
+
+                        b
                         sh """
                             export KUBECONFIG=${KUBECONFIG}
                             export OPENAI_API_KEY=${OPENAI_API_KEY}
