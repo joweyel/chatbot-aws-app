@@ -14,6 +14,7 @@ pipeline {
         ECR_REGISTRY = credentials("ecr_registry_url")
         ECR_REPOSITORY = "flaskgpt-app"
         REPOSITORY_URI = "${ECR_REGISTRY}/${ECR_REPOSITORY}"
+        KUBECONFIG = '/home/ubuntu/.kube/config'
         // OPENAI_API_KEY = credentials("OPENAI_API_KEY")  // TODO: add to credentials
     }
 
