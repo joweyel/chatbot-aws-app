@@ -8,13 +8,14 @@ metadata:
   #   service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
   #   service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=604800 # 1 week session affinity
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: fgpt-app
+  ports:
+  - nodePort: 30082
+    port: 5000
+    targetPort: 5000
   sessionAffinity: ClientIP
   sessionAffinityConfig: 
     clientIP: 
       timeoutSeconds: 86400 # Set to 1 day
-  ports:
-  - port: 5000
-    targetPort: 5000
