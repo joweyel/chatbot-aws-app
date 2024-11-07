@@ -5,8 +5,8 @@ metadata:
   namespace: fgpt
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-type: "http"
-  service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
-  service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=604800 # 1 week session affinity
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
+    service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=604800 # 1 week session affinity
 spec:
   type: LoadBalancer
   selector:
