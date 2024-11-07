@@ -3,11 +3,14 @@ kind: Service
 metadata:
   name: fgpt-app-service
   namespace: fgpt
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "http"
+  service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
+  service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=604800 # 1 week session affinity
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: fgpt-app
   ports:
-  - nodePort: 30082  # Port on which the node is accessible after deplyoment
-    port: 5000
+  - port: 5000
     targetPort: 5000
