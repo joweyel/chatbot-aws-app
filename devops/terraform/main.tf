@@ -145,17 +145,10 @@ resource "aws_security_group" "app-sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  ingress { 
-    description = "Flask access" 
-    from_port = 5000 
-    to_port = 5000 
-    protocol = "tcp" 
-    cidr_blocks = ["0.0.0.0/0"] 
-  }
   ingress {
-    description = "EKS Node access"
-    from_port   = 30082
-    to_port     = 30082
+    description = "Flask access"
+    from_port   = 5000
+    to_port     = 5000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -223,20 +216,76 @@ resource "aws_route_table_association" "app-rta-public-subnet-02" {
   route_table_id = aws_route_table.app-public-rt.id
 }
 
+resource "aws_elastic_beanstalk_application" "fgpt-app" {
+  name        = "fgpt-app"
+  description = "Elastic Beanstalk Application for deploying flask gpt-app"
+}
+
+resource "aws_elastic_beanstalk_environment" "fgpt-env" {
+  name                = "fgpt-env"
+  application         = aws_elastic_beanstalk_application.fgpt-app.name
+  solution_stack_name = "64bit Amazon Linux 2023 v4.4.0 running Docker"
+
+  setting {
+    namespace = "aws:ec2:vpc"
+    name      = "VPCId"
+    value     = aws_vpc.app-vpc.id
+  }
+
+  setting {
+    namespace = "aws:ec2:vpc"
+    name      = "Subnets"
+    value     = "${aws_subnet.app-public-subnet-01.id},${aws_subnet.app-public-subnet-02.id}"
+  }
+
+  setting {
+    namespace = "aws:ec2:vpc"
+    name      = "AssociatePublicIpAddress"
+    value     = "true"
+  }
+
+  setting {
+    namespace = "aws:ec2:instances"
+    name      = "InstanceTypes"
+    value     = "t3.micro"
+  }
+
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "IamInstanceProfile"
+    value     = module.ecr.ecr_instance_profile_name
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:environment"
+    name      = "EnvironmentType"
+    value     = "SingleInstance"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:environment:process:default"
+    name      = "HealthCheckPath"
+    value     = "/"
+  }
+
+}
+
+
+
 module "ecr" {
   source        = "./ecr"
   ecr_repo_name = var.ecr_repo_name
   region        = var.region
 }
 
-module "sgs" {
-  source = "./sg_eks"
-  vpc_id = aws_vpc.app-vpc.id
-}
+# module "sgs" {
+#   source = "./sg_eks"
+#   vpc_id = aws_vpc.app-vpc.id
+# }
 
-module "eks" {
-  source     = "./eks"
-  vpc_id     = aws_vpc.app-vpc.id
-  subnet_ids = [aws_subnet.app-public-subnet-01.id, aws_subnet.app-public-subnet-02.id]
-  sg_ids     = module.sgs.security_group_public
-}
+# module "eks" {
+#   source     = "./eks"
+#   vpc_id     = aws_vpc.app-vpc.id0
+#   subnet_ids = [aws_subnet.app-public-subnet-01.id, aws_subnet.app-public-subnet-02.id]
+#   sg_ids     = module.sgs.security_group_public
+# }

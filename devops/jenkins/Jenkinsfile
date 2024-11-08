@@ -14,7 +14,6 @@ pipeline {
         ECR_REGISTRY = credentials("ecr_registry_url")
         ECR_REPOSITORY = "flaskgpt-app"
         REPOSITORY_URI = "${ECR_REGISTRY}/${ECR_REPOSITORY}"
-        KUBECONFIG = '/home/ubuntu/.kube/config'
         // OPENAI_API_KEY = credentials("OPENAI_API_KEY")  // TODO: add to credentials
     }
 
@@ -98,8 +97,6 @@ pipeline {
                 withCredentials([
                     string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), 
                     string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY'), 
-                    // string(credentialsId: 'aws_region', variable: 'AWS_REGION'), 
-                    // string(credentialsId: 'ecr_registry_url', variable: 'ECR_REGISTRY')
                 ]) {
                     sh """
                         export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
@@ -126,94 +123,63 @@ pipeline {
             }
         }
 
-        stage("Get EKS cluster credentials")
+        stage("Deploy ECR Container to Elastic Beanstalk")
         {
             steps
             {
                 script
-                {
-                    echo '<--------------- EKS CREDENTIALS START --------------->'
-                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                        sh "aws eks update-kubeconfig --region ${AWS_REGION} --name app-eks-01"
-                    }
-                    echo '<---------------- EKS CREDENTIALS END ---------------->'
-                }
-            }
-        }
-
-        stage("Create Kubernetes namespace")
-        {
-            steps
-            {
-                script
-                {
-                    echo '<--------------- CREATE NAMESPACE START --------------->'
-                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'app_user-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                {  
+                    echo '<----------------- START DEPLOYING TO EB -----------------'
+                        withCredentials([
+                            string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY'),
+                            string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), 
+                            string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')
+                        ]) {
                         sh """
-                            export KUBECONFIG=${KUBECONFIG}
-
-                            if ! kubectl get namespace fgpt; then
-                                kubectl create namespace fgpt
-                                echo "Namespace fgpt created"
-                            else
-                                echo "Namespace fgpt already exists"
-                            fi
+                            export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} 
+                            export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} 
+                            export AWS_DEFAULT_REGION=${AWS_REGION}
                             
-                            kubectl label namespace fgpt app.kubernetes.io/managed-by=Helm
-                            kubectl annotate namespace fgpt meta.helm.sh/release-name=flaskgpt-app
-                            kubectl annotate namespace fgpt meta.helm.sh/release-namespace=fgpt
+                            aws elasticbeanstalk update-environment \\
+                                --application-name fgpt-app \\
+                                --environment-name fgpt-env \\
+                                --version-label ${env.VERSION} \\
+                                --option-settings \\
+                                --option-settings \\
+                                    Namespace=aws:elasticbeanstalk:container:docker,OptionName=Image,Value=${REPOSITORY_URI}:${VERSION}
+                                    Namespace=aws:elasticbeanstalk:application:environment,OptionName=OPENAI_API_KEY,Value=${OPENAI_API_KEY}
                         """
-                        echo '<---------------- CREATE NAMESPACE END ---------------->'
                     }
+                    echo '<------------------ END DEPLOYING TO EB ------------------'
                 }
             }
         }
 
-        stage("Create Kubernetes secret")
-        {
-            steps
-            {
-                script
-                {
-                    echo '<--------------- KUBERNETES SECRETS START --------------->'
-                    withCredentials([
-                        string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY'),
-                        string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'),
-                        string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')
-                    ])
-                    {
-                        sh """
-                            export KUBECONFIG=${KUBECONFIG}
-                            export OPENAI_API_KEY=${OPENAI_API_KEY}
-                            kubectl create secret generic openai-secret --from-literal=OPENAI_API_KEY=${OPENAI_API_KEY} --namespace fgpt --dry-run=client -o yaml | kubectl apply -f -
-                        """
-                    }
-                    echo '<---------------- KUBERNETES SECRETS END ---------------->'
-                }
-            }
-        }
-
-        stage("Deploy") 
+        stage("Get EB endpoint") 
         {
             steps 
             {
                 script 
                 {
                     withCredentials([
-                        string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY'),
-                        string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'),
+                        string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), 
                         string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')
-                    ])
+                    ]) 
                     {
-                        echo '<--------------- DEPLOY HELM START --------------->'
-                        sh """
-                            helm upgrade --install flaskgpt-app ${WORKSPACE}/devops/kubernetes/flaskGptApp \\
-                            --set image.repository=${REPOSITORY_URI} \\
-                            --set image.tag=${VERSION} \\
-                            --set replicaCount=2 \\
-                            --namespace fgpt
-                        """
-                        echo '<----------------- DEPLOY HELM END --------------->'
+                        def eb_endpoint_url = sh(
+                            script: """
+                                export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                                export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                                export AWS_DEFAULT_REGION=${AWS_REGION}
+
+                                aws elasticbeanstalk describe-environments \\
+                                    --application-name fgpt-app \\
+                                    --environment-names fgpt-env \\
+                                    --query "Environments[0].CNAME" \\
+                                    --output text
+                            """, returnStdout: true
+                        ).trim()
+                        echo "EB endpoint URL: http://${eb_endpoint_url}"
                     }
                 }
             }
