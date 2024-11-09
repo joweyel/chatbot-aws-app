@@ -132,17 +132,14 @@ pipeline {
                 {
                    writeFile file: 'Dockerrun.aws.json', text: """
                    { 
-                       "AWSEBDockerrunVersion": 2, 
-                       "containerDefinitions": [{ 
-                           "name": "flaskgpt-app", 
-                           "image": "${REPOSITORY_URI}:${env.VERSION}", 
-                           "essential": true, 
-                           "memory": 256, 
-                           "portMappings": [{ 
-                               "containerPort": 5000, 
-                               "hostPort": 5000 
-                           }] 
-                        }] 
+                        "Image": {
+                            "Name": "${REPOSITORY_URI}:${env.VERSION}",
+                            "Update": "true"
+                        },
+                        "Ports": [{
+                            "ContainerPort": 5000,
+                            "HostPort": 5000
+                        }]
                     }
                     """
                 }

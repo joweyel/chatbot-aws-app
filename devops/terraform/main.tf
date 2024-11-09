@@ -233,12 +233,6 @@ resource "aws_elastic_beanstalk_environment" "fgpt-env" {
   solution_stack_name = "64bit Amazon Linux 2023 v4.4.0 running Docker"
 
   setting {
-    namespace = "aws:elasticbeanstalk:application:environment"
-    name      = "DOCKER_IMAGE"
-    value     = "placeholder:latest"
-  }
-
-  setting {
     namespace = "aws:ec2:vpc"
     name      = "VPCId"
     value     = aws_vpc.app-vpc.id
@@ -263,8 +257,8 @@ resource "aws_elastic_beanstalk_environment" "fgpt-env" {
   }
   
   setting {
+    namespace = "aws:elasticbeanstalk:environment:process:default"
     name      = "InstancePort"
-    namespace = "aws:cloudformation:template:parameter"
     value     = "5000"
   }
 
