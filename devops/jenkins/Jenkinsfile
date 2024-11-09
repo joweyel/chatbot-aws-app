@@ -14,6 +14,7 @@ pipeline {
         ECR_REGISTRY = credentials("ecr_registry_url")
         ECR_REPOSITORY = "flaskgpt-app"
         REPOSITORY_URI = "${ECR_REGISTRY}/${ECR_REPOSITORY}"
+        S3_BUCKET = "eb-dockerrun-bucket"
         // OPENAI_API_KEY = credentials("OPENAI_API_KEY")  // TODO: add to credentials
     }
 
@@ -83,7 +84,7 @@ pipeline {
             steps {
                 script {
                     echo '----------------- START BUILDING DOCKER IMAGE -----------------'
-                    sh "docker build -t $ECR_REPOSITORY:$VERSION ."
+                    sh "docker build -t $ECR_REPOSITORY:${env.VERSION} ."
                     echo '------------------ END BUILDING DOCKER IMAGE ------------------'
                 }
             }
@@ -116,42 +117,115 @@ pipeline {
                 script 
                 {
                     echo '<--------------- DOCKER PUBLISH START --------------->'
-                    sh "docker tag $ECR_REPOSITORY:$VERSION $REPOSITORY_URI:$VERSION"
-                    sh "docker push $REPOSITORY_URI:$VERSION"
+                    sh "docker tag $ECR_REPOSITORY:${env.VERSION} $REPOSITORY_URI:${env.VERSION}"
+                    sh "docker push $REPOSITORY_URI:${env.VERSION}"
                     echo '<---------------- DOCKER PUBLISH END ---------------->'
                 }
             }
         }
 
-        stage("Deploy ECR Container to Elastic Beanstalk")
+        stage("Create Dockerrun.aws.json") 
         {
             steps
             {
                 script
-                {  
-                    echo '<----------------- START DEPLOYING TO EB -----------------'
-                        withCredentials([
-                            string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY'),
-                            string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), 
-                            string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')
-                        ]) {
-                        sh """
-                            export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} 
-                            export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} 
-                            export AWS_DEFAULT_REGION=${AWS_REGION}
-                            
-                            aws elasticbeanstalk update-environment \\
-                                --application-name fgpt-app \\
-                                --environment-name fgpt-env \\
-                                --option-settings \\
-                                    Namespace=aws:elasticbeanstalk:container:docker,OptionName=Image,Value=${REPOSITORY_URI}:${VERSION}
-                                    Namespace=aws:elasticbeanstalk:application:environment,OptionName=OPENAI_API_KEY,Value=${OPENAI_API_KEY}
-                        """
+                {
+                   writeFile file: 'Dockerrun.aws.json', text: """
+                   { 
+                       "AWSEBDockerrunVersion": 2, 
+                       "containerDefinitions": [{ 
+                           "name": "flaskgpt-app", 
+                           "image": "${REPOSITORY_URI}:${env.VERSION}", 
+                           "essential": true, 
+                           "memory": 256, 
+                           "portMappings": [{ 
+                               "containerPort": 5000, 
+                               "hostPort": 5000 
+                           }] 
+                        }] 
                     }
-                    echo '<------------------ END DEPLOYING TO EB ------------------'
+                    """
                 }
             }
         }
+
+        stage("Upload Dockerrun to S3") {
+            steps
+            {
+                script
+                {
+                    echo "----------------- START UPLOADING Dockerrun.aws.json TO S3 -----------------"
+                    sh """
+                        zip -r app-${env.VERSION}.zip Dockerrun.aws.json
+                        aws s3 cp app-${env.VERSION}.zip s3://${S3_BUCKET}/app-${env.VERSION}.zip
+                    """
+                    echo "------------------ END UPLOADING Dockerrun.aws.json TO S3 ------------------"
+                }
+            }
+        }
+
+        stage("Deploy to Elastic Beanstalk")
+        {
+            steps
+            {
+                script
+                {
+                    echo "--------------------- DEPLOY TO EB -----------------------"
+                    withCredentials([
+                        string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), 
+                        string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY'),
+                        string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')
+                    ]) {
+                        sh """
+                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                        export AWS_DEFAULT_REGION=${AWS_REGION}
+
+                        aws elasticbeanstalk create-application-version \\
+                            --application-name fgpt-app \\
+                            --version-label ${env.VERSION} \\
+                            --source-bundle S3Bucket=${S3_BUCKET},S3Key=app-${env.VERSION}.zip
+
+                        aws elasticbeanstalk update-environment \\
+                            --application-name fgpt-app \\
+                            --environment-name fgpt-env \\
+                            --version-label ${env.VERSION} \\
+                            --option-settings "Namespace=aws:elasticbeanstalk:application:environment,OptionName=OPENAI_API_KEY,Value=${OPENAI_API_KEY}"
+                        """
+                    }
+                    echo "------------------- END DEPLOY TO EB ---------------------"
+                }
+            }
+        }
+
+
+        // stage("Deploy ECR Container to Elastic Beanstalk")
+        // {
+        //     steps
+        //     {
+        //         script
+        //         {  
+        //             echo '<----------------- START DEPLOYING TO EB -----------------'
+        //                 withCredentials([
+        //                     string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY'),
+        //                     string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), 
+        //                     string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')
+        //                 ]) {
+        //                 sh """
+        //                     export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} 
+        //                     export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} 
+        //                     export AWS_DEFAULT_REGION=${AWS_REGION}
+                            
+        //                     aws elasticbeanstalk update-environment \\
+        //                         --application-name fgpt-app \\
+        //                         --environment-name fgpt-env \\
+        //                         --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=OPENAI_API_KEY,Value=${OPENAI_API_KEY}
+        //                 """
+        //             }
+        //             echo '<------------------ END DEPLOYING TO EB ------------------'
+        //         }
+        //     }
+        // }
 
         stage("Get EB endpoint") 
         {

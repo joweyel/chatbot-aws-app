@@ -216,6 +216,12 @@ resource "aws_route_table_association" "app-rta-public-subnet-02" {
   route_table_id = aws_route_table.app-public-rt.id
 }
 
+
+
+#########################################
+##  Deployment of ECR container to EB  ##
+#########################################
+
 resource "aws_elastic_beanstalk_application" "fgpt-app" {
   name        = "fgpt-app"
   description = "Elastic Beanstalk Application for deploying flask gpt-app"
@@ -225,6 +231,12 @@ resource "aws_elastic_beanstalk_environment" "fgpt-env" {
   name                = "fgpt-env"
   application         = aws_elastic_beanstalk_application.fgpt-app.name
   solution_stack_name = "64bit Amazon Linux 2023 v4.4.0 running Docker"
+
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "DOCKER_IMAGE"
+    value     = "placeholder:latest"
+  }
 
   setting {
     namespace = "aws:ec2:vpc"
@@ -249,11 +261,17 @@ resource "aws_elastic_beanstalk_environment" "fgpt-env" {
     name      = "InstanceTypes"
     value     = "t3.micro"
   }
+  
+  setting {
+    name      = "InstancePort"
+    namespace = "aws:cloudformation:template:parameter"
+    value     = "5000"
+  }
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
-    value     = module.ecr.ecr_instance_profile_name
+    value     = module.ecr.ecr_instance_profile_name  # has access to relevant ecr and s3 resources
   }
 
   setting {
@@ -269,8 +287,6 @@ resource "aws_elastic_beanstalk_environment" "fgpt-env" {
   }
 
 }
-
-
 
 module "ecr" {
   source        = "./ecr"

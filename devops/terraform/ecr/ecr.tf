@@ -49,9 +49,48 @@ resource "aws_iam_policy" "ecr_access_policy" {
   EOF
 }
 
-resource "aws_iam_role_policy_attachment" "ECSAccessEC2Policy" {
+resource "aws_s3_bucket" "eb-bucket" {
+  bucket = "eb-dockerrun-bucket"
+  tags = {
+    Name = "eb-dockerrun-bucket"
+  }
+}
+
+resource "aws_iam_policy" "s3_access_policy" {
+  name        = "s3_access_policy"
+  description = "Allow access to S3 Bucket"
+
+  policy = <<EOF
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:Get*",
+          "s3:Put*",
+          "s3:List*"
+        ],
+        "Resource": [
+          "arn:aws:s3:::${aws_s3_bucket.eb-bucket.bucket}",
+          "arn:aws:s3:::${aws_s3_bucket.eb-bucket.bucket}/*"
+        ]
+      }
+    ]
+  }
+  EOF
+}
+
+# Attach ECR access
+resource "aws_iam_role_policy_attachment" "ecr_policy_attachment" {
   role       = aws_iam_role.ecr_access_role.name
   policy_arn = aws_iam_policy.ecr_access_policy.arn
+}
+
+# Attach S3 access
+resource "aws_iam_role_policy_attachment" "s3_policy_attachment" {
+  role       = aws_iam_role.ecr_access_role.name
+  policy_arn = aws_iam_policy.s3_access_policy.arn
 }
 
 resource "aws_iam_instance_profile" "ecr_instance_profile" {
@@ -68,7 +107,7 @@ resource "aws_ecr_repository" "cv_app_ecr_repo" {
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.ECSAccessEC2Policy
+    aws_iam_role_policy_attachment.ecr_policy_attachment
   ]
 
   tags = {
