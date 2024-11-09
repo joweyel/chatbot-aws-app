@@ -107,7 +107,8 @@ resource "aws_ecr_repository" "cv_app_ecr_repo" {
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.ecr_policy_attachment
+    aws_iam_role_policy_attachment.ecr_policy_attachment,
+      aws_iam_role_policy_attachment.s3_policy_attachment
   ]
 
   tags = {
