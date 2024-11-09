@@ -86,6 +86,10 @@
     apt:
       name: unzip
       state: present
+  - name: Install zip package 
+    apt: 
+      name: zip 
+      state: present
 
   - name: Download AWS CLI v2
     get_url:
