@@ -179,23 +179,14 @@ pipeline {
                         export AWS_DEFAULT_REGION=${AWS_REGION}
 
                         # Check if the application version exists
-                        def cmd = "aws elasticbeanstalk describe-application-versions --application-name fgpt-app --version-labels ${env.VERSION} --query \"ApplicationVersions[0].VersionLabel\" --output text"
-                        dev versionExists = cmd.execute().text.trim()
-                        if (versionExists == "${env.VERSION}")
-                        {
-                            aws elasticbeanstalk delete-application-version --application-name fgpt-app --version-label ${env.VERSION} --delete-source-bundle 
-                        }
+                        VERSION_EXISTS=\$(aws elasticbeanstalk describe-application-versions --application-name fgpt-app --version-labels \$VERSION --query "ApplicationVersions[0].VersionLabel" --output text)
+                        if [ "\$VERSION_EXISTS" = "\$VERSION" ]; then
+                            echo "Version \$VERSION already exists, deleting it."
+                            aws elasticbeanstalk delete-application-version --application-name fgpt-app --version-label \$VERSION --delete-source-bundle
+                        fi
 
-                        aws elasticbeanstalk create-application-version \\
-                            --application-name fgpt-app \\
-                            --version-label ${env.VERSION} \\
-                            --source-bundle S3Bucket=${S3_BUCKET},S3Key=app-${env.VERSION}.zip
-
-                        aws elasticbeanstalk update-environment \\
-                            --application-name fgpt-app \\
-                            --environment-name fgpt-env \\
-                            --version-label ${env.VERSION} \\
-                            --option-settings "Namespace=aws:elasticbeanstalk:application:environment,OptionName=OPENAI_API_KEY,Value=${OPENAI_API_KEY}"
+                        aws elasticbeanstalk create-application-version --application-name fgpt-app --version-label \$VERSION --source-bundle S3Bucket=${S3_BUCKET},S3Key=app-\$VERSION.zip
+                        aws elasticbeanstalk update-environment --application-name fgpt-app --environment-name fgpt-env --version-label \$VERSION --option-settings "Namespace=aws:elasticbeanstalk:application:environment,OptionName=OPENAI_API_KEY,Value=${OPENAI_API_KEY}"
                         """
                     }
                     echo "------------------- END DEPLOY TO EB ---------------------"
