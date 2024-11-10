@@ -131,7 +131,8 @@ pipeline {
                 script
                 {
                    writeFile file: 'Dockerrun.aws.json', text: """
-{ 
+{
+    "AWSEBDockerrunVersion": "1",
     "Image": {
         "Name": "${REPOSITORY_URI}:${env.VERSION}",
         "Update": "true"
