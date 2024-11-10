@@ -48,7 +48,6 @@ resource "aws_instance" "build-server" {
 
   iam_instance_profile = module.ecr.ecr_instance_profile_name
 
-
   tags = {
     Name = "build-server"
   }
@@ -247,7 +246,13 @@ resource "aws_elastic_beanstalk_environment" "fgpt-env" {
   setting {
     namespace = "aws:ec2:vpc"
     name      = "AssociatePublicIpAddress"
-    value     = "true"
+    value     = "True"
+  }
+
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration" 
+    name = "SecurityGroups" 
+    value = aws_security_group.app-sg.id 
   }
 
   setting {
@@ -255,7 +260,19 @@ resource "aws_elastic_beanstalk_environment" "fgpt-env" {
     name      = "InstanceTypes"
     value     = "t3.micro"
   }
-  
+
+  setting {
+    namespace = "aws:elasticbeanstalk:environment:process:default"
+    name      = "MatcherHTTPCode"
+    value     = 200
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:healthreporting:system"
+    name      = "SystemType"
+    value     = "basic"
+  }
+
   setting {
     namespace = "aws:elasticbeanstalk:environment:process:default"
     name      = "InstancePort"
@@ -265,7 +282,7 @@ resource "aws_elastic_beanstalk_environment" "fgpt-env" {
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
-    value     = module.ecr.ecr_instance_profile_name  # has access to relevant ecr and s3 resources
+    value     = module.ecr.ecr_instance_profile_name # has access to relevant ecr and s3 resources
   }
 
   setting {

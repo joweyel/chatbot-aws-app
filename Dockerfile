@@ -17,5 +17,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 
 EXPOSE 5000
-# ENTRYPOINT [ "python3", "run.py" ]
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "run:app"]
