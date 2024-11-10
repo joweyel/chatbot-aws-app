@@ -180,7 +180,7 @@ pipeline {
 
                         # Check if the application version exists
                         export VERSION=${env.VERSION}
-                        VERSION_EXISTS=$(aws elasticbeanstalk describe-application-versions --application-name fgpt-app --version-labels $VERSION --query "ApplicationVersions[0].VersionLabel" --output text)
+                        VERSION_EXISTS=\$(aws elasticbeanstalk describe-application-versions --application-name fgpt-app --version-labels $VERSION --query "ApplicationVersions[0].VersionLabel" --output text)
                         if [ "$VERSION_EXISTS" != "None" ]; then
                             # If the version exists, delete it 
                             aws elasticbeanstalk delete-application-version --application-name fgpt-app --version-label ${env.VERSION} --delete-source-bundle 
