@@ -250,9 +250,9 @@ resource "aws_elastic_beanstalk_environment" "fgpt-env" {
   }
 
   setting {
-    namespace = "aws:autoscaling:launchconfiguration" 
-    name = "SecurityGroups" 
-    value = aws_security_group.app-sg.id 
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "SecurityGroups"
+    value     = aws_security_group.app-sg.id
   }
 
   setting {

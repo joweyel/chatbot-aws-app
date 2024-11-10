@@ -39,10 +39,16 @@ resource "aws_iam_policy" "ecr_access_policy" {
             "ecr:CompleteLayerUpload",
             "ecr:DescribeRepositories",
             "ecr:ListImages",
-            "ecr:DescribeImages",
-            "ecr:GetAuthorizationToken"
+            "ecr:DescribeImages"
         ],
         "Resource": "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/flaskgpt-app"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+            "ecr:GetAuthorizationToken"
+        ],
+        "Resource": "*"
       }
     ]
   }
