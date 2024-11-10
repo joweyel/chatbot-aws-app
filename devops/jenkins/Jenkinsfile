@@ -179,12 +179,12 @@ pipeline {
                         export AWS_DEFAULT_REGION=${AWS_REGION}
 
                         # Check if the application version exists
-                        export VERSION=${env.VERSION}
-                        VERSION_EXISTS=\$(aws elasticbeanstalk describe-application-versions --application-name fgpt-app --version-labels $VERSION --query "ApplicationVersions[0].VersionLabel" --output text)
-                        if [ "$VERSION_EXISTS" != "None" ]; then
-                            # If the version exists, delete it 
+                        def cmd = "aws elasticbeanstalk describe-application-versions --application-name fgpt-app --version-labels ${env.VERSION} --query \"ApplicationVersions[0].VersionLabel\" --output text"
+                        dev versionExists = cmd.execute().text.trim()
+                        if (versionExists == "${env.VERSION}")
+                        {
                             aws elasticbeanstalk delete-application-version --application-name fgpt-app --version-label ${env.VERSION} --delete-source-bundle 
-                        fi
+                        }
 
                         aws elasticbeanstalk create-application-version \\
                             --application-name fgpt-app \\
