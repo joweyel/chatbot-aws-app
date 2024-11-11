@@ -296,7 +296,6 @@ resource "aws_elastic_beanstalk_environment" "fgpt-env" {
     name      = "HealthCheckPath"
     value     = "/"
   }
-
 }
 
 module "ecr" {

@@ -1,6 +1,6 @@
 [project]
 name = "chatbot-aws-app"
-version = "0.1"
+version = "0.2"
 
 [tool.pylint.messages_control]
 disable = [
