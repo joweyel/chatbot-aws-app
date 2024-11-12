@@ -170,7 +170,6 @@ Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Plugins]` -> `[Available plugins]
     - **Username**: `ubuntu`
     - **Private key**: content of `app_key.pem` 
 
-
 #### Use build server as node
 - Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Nodes]` -> `[New Node]`
 - **New node**:
