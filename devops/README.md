@@ -194,6 +194,7 @@ Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Plugins]` -> `[Available plugins]
 aws configure --profile app_user
 ```
 
+
 ### Create Pipeline
 - Go to `[Dashboard]` -> `[New Item]`
 - <u>Create Item with these properties:</u>
