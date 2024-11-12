@@ -160,8 +160,9 @@ Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Plugins]` -> `[Available plugins]
 
 1. Add ssh credentials to Jenkins
 2. Add node
+3. Configure awscli on (build) node
 
-#### Create credentials to connect to build server
+#### 1. Create credentials to connect to build server
 - Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Credentials]` -> `[System]` -> `[Global credentials (unrestricted)]` and add:
     - **Kind**: `SSH Username with private key`
     - **Scope**: `Global`
@@ -170,7 +171,7 @@ Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Plugins]` -> `[Available plugins]
     - **Username**: `ubuntu`
     - **Private key**: content of `app_key.pem` 
 
-#### Use build server as node
+#### 2. Use build server as node
 - Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Nodes]` -> `[New Node]`
 - **New node**:
   - **Node name**: python-build
@@ -185,6 +186,13 @@ Go to `[Dashboard]` -> `[Manage Jenkins]` -> `[Plugins]` -> `[Available plugins]
       - **Credentials**: `build server credentials` (created in previous step)
       - **Host Key Verification Strategy**: Non verifying Verification Strategy
       - **Availability**: Keep this agent online as much as possible
+
+#### 3. Configure the AWS IAM user on the build server
+- Go to the `build-server` instance in the EC2 instance console and connect to the VM via `[Connect]`
+```bash
+# Provide all relevant parameter here
+aws configure --profile app_user
+```
 
 ### Create Pipeline
 - Go to `[Dashboard]` -> `[New Item]`
@@ -279,4 +287,7 @@ The pipeline should now be able to be triggered with every `git push` command.
       - **ID**: `OPENAI_API_KEY`
   
 
-With everything set up you will now be able to build and deploy the code in an automated way.
+With everything set up you will now be able to build and deploy the code in an automated way when you commit and push your changes to the repo with:
+```bash
+git push origin main
+```
