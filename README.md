@@ -35,11 +35,12 @@ Open the app in the browser at http://localhost:5000 or https://127.0.0.1:5000
 ## Running the app locally with Docker
 Building the docker container
 ```bash
-docker build --build-arg OPENAI_API_KEY=${OPENAI_API_KEY} -t flaskgpt:0.1 .
+VERSION=...
+docker build --build-arg OPENAI_API_KEY=${OPENAI_API_KEY} -t flaskgpt:${VERSION} .
 ```
 Running the app locally using Docker
 ```bash
-docker run -it -p 5000:5000 flaskgpt:0.1 
+docker run -it -p 5000:5000 flaskgpt:${VERSION}
 ```
 
 # Deploy the app on AWS using a CI-CD pipeline with Jenkins

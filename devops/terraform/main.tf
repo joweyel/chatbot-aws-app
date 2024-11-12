@@ -2,20 +2,6 @@ provider "aws" {
   region = var.region
 }
 
-# resource "aws_instance" "servers" {
-#   ami           = "ami-0e86e20dae9224db8" # Ubuntu 24.04
-#   key_name      = "app_key"
-
-#   vpc_security_group_ids = [aws_security_group.app-sg.id]
-#   subnet_id              = aws_subnet.app-public-subnet-01.id
-#   for_each               = toset(["jenkins-server", "build-server", "ansible"])
-#   # Only giving the build-server more resources
-#   instance_type = each.key == "build-server" ? "t3.small" : "t2.micro"
-#   tags = {
-#     Name = "${each.key}"
-#   }
-# }
-
 # Create ansible hosts files dynamically
 data "template_file" "hosts_file" {
   template = file("${path.module}/../ansible/hosts.tpl")

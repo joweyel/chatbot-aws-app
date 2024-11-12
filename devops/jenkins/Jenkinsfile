@@ -10,12 +10,10 @@ pipeline {
     {
         VENV_NAME = "build-venv"
         AWS_REGION = credentials("aws_region")
-        // AWS_PROFILE = credentials("aws_profile")
         ECR_REGISTRY = credentials("ecr_registry_url")
         ECR_REPOSITORY = "flaskgpt-app"
         REPOSITORY_URI = "${ECR_REGISTRY}/${ECR_REPOSITORY}"
         S3_BUCKET = "eb-dockerrun-bucket"
-        // OPENAI_API_KEY = credentials("OPENAI_API_KEY")  // TODO: add to credentials
     }
 
     stages
@@ -34,7 +32,7 @@ pipeline {
             }
         }
 
-        stage("Get Version") 
+        stage("Get release version") 
         {
             steps 
             {
