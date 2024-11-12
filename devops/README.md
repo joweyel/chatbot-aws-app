@@ -200,7 +200,7 @@ aws configure --profile app_user
 - <u>Create Item with these properties:</u>
     - Item name: `app_pipeline`
     - Item type: `pipeline`
-- <u>Check the following:</u>
+- <u><b>Check the following:</b></u> (IMPORTANT!)
   - GitHub hook trigger for GITScm polling
 - <u>Set `Pipeline`-parameter as following</u>:
   - **Definition**: `Pipeline script from SCM`
