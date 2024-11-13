@@ -173,7 +173,7 @@ pipeline {
                         credentialsId: "app_user-aws-creds",
                         accessKeyVariable: "AWS_ACCESS_KEY_ID",
                         secretKeyVariable: "AWS_SECRET_ACCESS_KEY"
-                    ]])
+                    ], string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')])
                     {
                         sh """
                         # Check if the application version exists
