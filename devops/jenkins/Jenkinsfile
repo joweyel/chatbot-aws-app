@@ -9,6 +9,7 @@ pipeline {
     environment
     {
         VENV_NAME = "build-venv"
+        AWS_USER = "app_user"
         AWS_REGION = credentials("aws_region")
         ECR_REGISTRY = credentials("ecr_registry_url")
         ECR_REPOSITORY = "flaskgpt-app"
@@ -88,16 +89,17 @@ pipeline {
             }
         }
 
-
-
         stage("Login to ECR") 
         {
             steps 
             {
                 echo "------------------- LOGIN TO ECR ---------------------"
+                withAWS(profile: 'ecr-access-role')
+                {
                     sh """
                         aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
                     """
+                }
                 echo "------------------ END LOGIN TO ECR ------------------"
             }
         }
