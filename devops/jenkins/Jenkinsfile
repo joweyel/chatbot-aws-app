@@ -168,17 +168,14 @@ pipeline {
                 script
                 {
                     echo "--------------------- DEPLOY TO EB -----------------------"
-                    withCredentials([
-                        string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'), 
-                        string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY'),
-                        string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')
-                    ]) 
+                    withCredentials([[
+                        $class: "AmazonWebServicesCredentialsBinding",
+                        credentialsId: "app_user-aws-creds",
+                        accessKeyVariable: "AWS_ACCESS_KEY_ID",
+                        secretKeyVariable: "AWS_SECRET_ACCESS_KEY"
+                    ]])
                     {
                         sh """
-                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-                        export AWS_DEFAULT_REGION=${AWS_REGION}
-
                         # Check if the application version exists
                         VERSION_EXISTS=\$(aws elasticbeanstalk describe-application-versions --application-name fgpt-app --version-labels \$VERSION --query "ApplicationVersions[0].VersionLabel" --output text)
                         if [ "\$VERSION_EXISTS" = "\$VERSION" ]; then
