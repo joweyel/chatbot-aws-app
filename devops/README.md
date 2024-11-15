@@ -47,7 +47,12 @@
                           "iam:ListAttachedRolePolicies",
                           "iam:GetPolicyVersion",
                           "iam:ListPolicyVersions",
-                          "iam:CreatePolicyVersion"
+                          "iam:CreatePolicyVersion",
+                          "iam:RemoveRoleFromInstanceProfile",
+                          "iam:DeletePolicy",
+                          "iam:DeletePolicyVersion",
+                          "iam:ListInstanceProfilesForRole",
+                          "iam:DeleteRole"
                       ],
                       "Resource": "*"
                   },
