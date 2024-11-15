@@ -121,7 +121,7 @@ terraform apply
 ```
 
 #### ***Important*** 
-When destroying the all ressources of the project, you first have to delete the docker images that is stored in the ECR service as well as all content in the s3 bucket `eb-dockerrun-bucket`, otherwise the `destroy`-command will fail until it is done:
+When destroying all the ressources of the project, you first have to delete the docker images that are stored in the ECR service, as well as all content in the s3 bucket `eb-dockerrun-bucket`, otherwise the `destroy`-command will fail:
 ```bash
 ## Delete docker containers
 
