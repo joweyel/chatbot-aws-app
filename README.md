@@ -58,7 +58,7 @@ docker run -it -p 5000:5000 flaskgpt:${VERSION}
 https://github.com/user-attachments/assets/d1ac5328-6175-409c-a1aa-887ecfb279ba
 
 
-# Deploy the app on AWS using a CI-CD pipeline with Jenkins
+# Deploy the app on AWS using a CI/CD pipeline with Jenkins
 
 The instructions can be found in the [devops](./devops/)-folder
 
