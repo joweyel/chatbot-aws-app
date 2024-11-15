@@ -2,6 +2,16 @@
 
 This is a OpenAI chat web application that uses flask as backend. The goal of this app is to be deployed to AWS.
 
+![webapp](images/program_overview.png)
+
+1. Accessing the Web-App over port 5000 using `Gunicorn` / `Flask`
+2. HTML, CSS and JavaScript frontend that allows sending chats to 
+3. Sending Text to backend where it is wrapped in a `HumanMessage`-object from the Langchain library
+4. Sending `HumanMessage`-object to the OpenAI API to get a an `AIMessage`-object with the answer
+5. Saving both `HumanMessage`-request and `AIMessage`-response to SQLite database
+6. Continuously updating the frontend using the database content.
+
+
 ## Running the app locally
 Create and activate a virtual environment
 ```bash
@@ -42,6 +52,11 @@ Running the app locally using Docker
 ```bash
 docker run -it -p 5000:5000 flaskgpt:${VERSION}
 ```
+
+## Demo
+
+<video controls src="images/demo.mp4" title="Demo"></video>
+
 
 # Deploy the app on AWS using a CI-CD pipeline with Jenkins
 
