@@ -64,7 +64,7 @@
                           "iam:DetachRolePolicy"
                       ],
                       "Resource": [
-                          "arn:aws:iam::886638369043:role/ecr-access-role"
+                          "arn:aws:iam::<your-account-id>:role/ecr-access-role"
                       ]
                   }
               ]
