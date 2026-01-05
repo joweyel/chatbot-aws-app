@@ -1,5 +1,10 @@
 # Flask App with OpenAI-Chatbot deployed on AWS with DevOps pipeline
 
+# TODOs in updated version
+- [ ] Update code
+- [ ] More security
+- [ ] More automation
+
 This is a OpenAI chat web application that uses flask as backend. The goal of this app is to be deployed to AWS.
 
 ![webapp](images/program_overview.png)
