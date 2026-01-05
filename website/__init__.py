@@ -131,7 +131,9 @@ def create_app():
 def init_chatbot(app):
     chat_id = "1"
     llm_config = {"configurable": {"thread_id": chat_id}}
-    llm = ChatOpenAI(temperature=0.0, api_key=API_KEY, model="gpt-3.5-turbo")
+    # llm = ChatOpenAI(temperature=0.0, api_key=API_KEY, model="gpt-3.5-turbo")
+    llm = ChatOpenAI(temperature=0.0, api_key=API_KEY, model="gpt-5-mini")
+    
 
     def call_model(state: MessagesState):
         system_msg_str = """
