@@ -33,7 +33,7 @@ pip install -r requirements.txt
 ```bash
 python3.9 -m venv venv-dev
 source venv-dev/bin/activate
-pip install -r requirements-devtxt
+pip install -r requirements-dev.txt
 ```
 
 Setting the OpenAI api key to access the llm:
